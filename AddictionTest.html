@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>COPS KC | Faith-Based Addiction Severity Assessment Gateway</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0A0F1A;
+            background-image: radial-gradient(circle at 15% 30%, rgba(37, 99, 235, 0.06) 0%, #0A0F1A 90%);
+            color: #E2E8F0;
+        }
+
+        .gateway-card {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(2px);
+            border: 1px solid rgba(71, 85, 105, 0.4);
+            border-radius: 1.5rem;
+            transition: all 0.2s ease;
+        }
+
+        .gateway-card:hover {
+            border-color: rgba(59, 130, 246, 0.5);
+            background: rgba(30, 41, 59, 0.85);
+            transform: translateY(-3px);
+        }
+
+        .btn-test {
+            background: rgba(37, 99, 235, 0.1);
+            border: 1px solid #2563EB;
+            font-weight: 600;
+            transition: 0.2s;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            letter-spacing: 0.03em;
+        }
+
+        .btn-test:hover {
+            background: #2563EB;
+            border-color: #60A5FA;
+            color: white;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .clinical-badge {
+            font-family: 'JetBrains Mono', monospace;
+            background: #1E293B;
+            border-radius: 40px;
+            padding: 0.2rem 0.7rem;
+            font-size: 0.65rem;
+            font-weight: 500;
+            letter-spacing: -0.01em;
+        }
+
+        .section-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #334155, #1E293B, #334155, transparent);
+        }
+        
+        .cops-gradient {
+            background: linear-gradient(135deg, #1E3A5F 0%, #0F2B42 100%);
+        }
+        
+        .faith-badge {
+            background: rgba(139, 92, 246, 0.15);
+            border: 1px solid rgba(139, 92, 246, 0.4);
+        }
+        
+        .therapy-cta {
+            background: linear-gradient(95deg, rgba(37, 99, 235, 0.2) 0%, rgba(124, 58, 237, 0.2) 100%);
+            border: 1px solid rgba(59, 130, 246, 0.5);
+        }
+    </style>
+</head>
+<body>
+
+<div class="max-w-5xl mx-auto px-5 md:px-8 py-12 relative z-10">
+    
+    <!-- Header with COPS KC branding and faith-based identity -->
+    <header class="mb-14 border-b border-slate-800/60 pb-8">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-5">
+            <div>
+                <div class="flex items-center gap-3 mb-3 flex-wrap">
+                    <span class="text-amber-400 text-3xl font-mono font-bold">†</span>
+                    <span class="text-[10px] font-mono font-semibold tracking-[0.25em] text-slate-500 uppercase">Faith-Based Clinical Assessment Gateway</span>
+                    <span class="clinical-badge text-amber-300 bg-slate-800">COPS KC · Since 2002</span>
+                </div>
+                <h1 class="text-4xl md:text-5xl font-bold tracking-tight text-white">
+                    Counselors Obediently<br>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-indigo-400">Preventing Substance Abuse</span>
+                </h1>
+                <p class="text-slate-400 max-w-xl mt-4 text-base leading-relaxed">
+                    <span class="font-semibold text-amber-300">COPS KC</span> — Certified outpatient SUD treatment program integrating spirituality & clinical excellence. 
+                    Select a substance below to begin your confidential severity assessment.
+                </p>
+                <div class="flex flex-wrap gap-3 mt-4">
+                    <div class="flex items-center gap-1.5 text-xs font-mono text-slate-400 bg-black/30 px-3 py-1.5 rounded-full">
+                        <span>📞 816-923-9212</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 text-xs font-mono text-slate-400 bg-black/30 px-3 py-1.5 rounded-full">
+                        <span>📍 3800 Agnes Ave Ste.2, Kansas City, MO 64128</span>
+                    </div>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="faith-badge rounded-xl px-4 py-2 text-center">
+                    <div class="text-[10px] font-mono text-purple-300">Christ-Centered Recovery</div>
+                    <div class="text-lg font-bold text-white">"Restoring hope, transforming lives"</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Online Therapy & COPS Integration Callout (Critical addition) -->
+    <div class="therapy-cta rounded-2xl p-5 mb-10 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div class="flex items-center gap-4">
+            <div class="text-4xl">💒</div>
+            <div>
+                <h3 class="font-bold text-white text-lg tracking-tight">Faith-Based Online Therapy & Recovery Coaching</h3>
+                <p class="text-slate-300 text-sm max-w-2xl">COPS KC offers <span class="text-amber-300 font-semibold">certified intensive outpatient treatment, individual & group counseling, relapse prevention, and recovery housing</span> — all integrating spiritual healing. Virtual sessions available. Call <span class="font-mono text-amber-300">816-923-9212</span> to begin your path to lasting recovery.</p>
+            </div>
+        </div>
+        <a href="tel:+18169239212" class="bg-amber-700 hover:bg-amber-600 text-white font-bold py-2.5 px-6 rounded-xl text-sm transition flex items-center gap-2 whitespace-nowrap">
+            📞 Contact for Therapy
+        </a>
+    </div>
+
+    <!-- Addiction Sections: comprehensive list including all substances + COPS KC context -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-14">
+        
+        <!-- Alcohol Use Disorder -->
+        <div class="gateway-card p-6 flex flex-col">
+            <div class="flex items-start justify-between mb-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-blue-950/70 flex items-center justify-center text-blue-300 text-xl border border-blue-500/40">🥃</div>
+                    <div>
+                        <h2 class="text-xl font-bold text-white tracking-tight">Alcohol</h2>
+                        <span class="clinical-badge text-blue-300">AUD · DSM‑5</span>
+                    </div>
+                </div>
+            </div>
+            <p class="text-slate-300 text-sm leading-relaxed mb-5">
+                Chronic consumption, craving, tolerance, withdrawal symptoms, and loss of control over drinking. 
+                This assessment uses the <span class="text-blue-300 font-mono text-xs">AUDIT</span> (Alcohol Use Disorders Identification Test) to measure risky consumption and dependence severity.
+            </p>
+            <div class="mt-auto">
+                <a href="alcohol.html" class="btn-test w-full inline-block text-center py-3 rounded-xl text-sm font-bold uppercase tracking-wide transition">⚕️ Start alcohol assessment →</a>
+            </div>
+        </div>
+
+        <!-- Nicotine / Tobacco Use Disorder -->
+        <div class="gateway-card p-6 flex flex-col">
+            <div class="flex items-start justify-between mb-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-slate-600/70 flex items-center justify-center text-slate-200 text-xl border border-slate-500/40">🚬</div>
+                    <div>
+                        <h2 class="text-xl font-bold text-white tracking-tight">Nicotine</h2>
+                        <span class="clinical-badge text-slate-300">NUD · FTND</span>
+                    </div>
+                </div>
+            </div>
+            <p class="text-slate-300 text-sm leading-relaxed mb-5">
+                Compulsive tobacco use, withdrawal (irritability, anxiety, craving), tolerance, and failed cessation attempts. 
+                Based on <span class="text-slate-300 font-mono text-xs">Fagerström Test for Nicotine Dependence (FTND)</span> plus DSM‑5 criteria.
+            </p>
+            <div class="mt-auto">
+                <a href="niction.html" class="btn-test w-full inline-block text-center py-3 rounded-xl text-sm font-bold uppercase tracking-wide transition">⚕️ Start nicotine assessment →</a>
+            </div>
+        </div>
+
+        <!-- Cocaine Use Disorder -->
+        <div class="gateway-card p-6 flex flex-col">
+            <div class="flex items-start justify-between mb-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-cyan-950/70 flex items-center justify-center text-cyan-300 text-xl border border-cyan-500/40">❄️</div>
+                    <div>
+                        <h2 class="text-xl font-bold text-white tracking-tight">Cocaine</h2>
+                        <span class="clinical-badge text-cyan-300">CocUD · DSM‑5</span>
+                    </div>
+                </div>
+            </div>
+            <p class="text-slate-300 text-sm leading-relaxed mb-5">
+                Binge patterns, intense craving, paranoia, financial/social collapse, and physiological toxicity. 
+                Uses modified <span class="text-cyan-300 font-mono text-xs">Cocaine Selective Severity Assessment (CSSA)</span> and DSM‑5 criteria.
+            </p>
+            <div class="mt-auto">
+                <a href="cocaine.html" class="btn-test w-full inline-block text-center py-3 rounded-xl text-sm font-bold uppercase tracking-wide transition">⚕️ Start cocaine assessment →</a>
+            </div>
+        </div>
+        
+        <!-- Gambling Disorder -->
+        <div class="gateway-card p-6 flex flex-col">
+            <div class="flex items-start justify-between mb-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-purple-950/70 flex items-center justify-center text-purple-300 text-xl border border-purple-500/40">🎰</div>
+                    <div>
+                        <h2 class="text-xl font-bold text-white tracking-tight">Gambling</h2>
+                        <span class="clinical-badge text-purple-300">ICD‑11 6C50</span>
+                    </div>
+                </div>
+            </div>
+            <p class="text-slate-300 text-sm leading-relaxed mb-5">
+                Progressive betting, chasing losses, deception, and financial consequences. Based on <span class="text-purple-300 font-mono text-xs">PGSI</span> (Problem Gambling Severity Index) 
+                and DSM‑5 criteria for gambling disorder.
+            </p>
+            <div class="mt-auto">
+                <a href="gambling.html" class="btn-test w-full inline-block text-center py-3 rounded-xl text-sm font-bold uppercase tracking-wide transition">⚕️ Start gambling assessment →</a>
+            </div>
+        </div>
+
+        <!-- Caffeine Use Disorder -->
+        <div class="gateway-card p-6 flex flex-col">
+            <div class="flex items-start justify-between mb-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-amber-950/70 flex items-center justify-center text-amber-300 text-xl border border-amber-500/40">☕</div>
+                    <div>
+                        <h2 class="text-xl font-bold text-white tracking-tight">Caffeine</h2>
+                        <span class="clinical-badge text-amber-300">CUD (proposed)</span>
+                    </div>
+                </div>
+            </div>
+            <p class="text-slate-300 text-sm leading-relaxed mb-5">
+                Physiological dependence, insomnia, anxiety, withdrawal headaches, and tolerance. 
+                Screener includes intake patterns, sleep disruption, and rebound fatigue.
+            </p>
+            <div class="mt-auto">
+                <a href="caffeine.html" class="btn-test w-full inline-block text-center py-3 rounded-xl text-sm font-bold uppercase tracking-wide transition">⚕️ Start caffeine assessment →</a>
+            </div>
+        </div>
+
+        <!-- Codeine (Opioid) Use Disorder -->
+        <div class="gateway-card p-6 flex flex-col">
+            <div class="flex items-start justify-between mb-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-red-950/70 flex items-center justify-center text-red-300 text-xl border border-red-500/40">💊</div>
+                    <div>
+                        <h2 class="text-xl font-bold text-white tracking-tight">Codeine</h2>
+                        <span class="clinical-badge text-red-300">OUD · DSM‑5</span>
+                    </div>
+                </div>
+            </div>
+            <p class="text-slate-300 text-sm leading-relaxed mb-5">
+                Opioid use disorder criteria: escalating doses, withdrawal (flu-like symptoms), tolerance, and compulsive use despite harms. 
+                Assessment leverages <span class="text-red-300 font-mono text-xs">Current Opioid Misuse Measure (COMM)</span> and DSM‑5 indicators.
+            </p>
+            <div class="mt-auto">
+                <a href="codeine.html" class="btn-test w-full inline-block text-center py-3 rounded-xl text-sm font-bold uppercase tracking-wide transition">⚕️ Start codeine assessment →</a>
+            </div>
+        </div>
+
+        <!-- Cannabis Use Disorder -->
+        <div class="gateway-card p-6 flex flex-col">
+            <div class="flex items-start justify-between mb-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-emerald-950/70 flex items-center justify-center text-emerald-300 text-xl border border-emerald-500/40">🌿</div>
+                    <div>
+                        <h2 class="text-xl font-bold text-white tracking-tight">Cannabis</h2>
+                        <span class="clinical-badge text-emerald-300">CUD · DSM‑5</span>
+                    </div>
+                </div>
+            </div>
+            <p class="text-slate-300 text-sm leading-relaxed mb-5">
+                Amotivational syndrome, memory deficits, increased tolerance, and withdrawal irritability. 
+                Uses <span class="text-emerald-300 font-mono text-xs">CUDIT‑R</span> (Cannabis Use Disorders Identification Test).
+            </p>
+            <div class="mt-auto">
+                <a href="cannabis.html" class="btn-test w-full inline-block text-center py-3 rounded-xl text-sm font-bold uppercase tracking-wide transition">⚕️ Start cannabis assessment →</a>
+            </div>
+        </div>
+
+        <!-- Compulsive Pornography / CSBD (wider card) -->
+        <div class="gateway-card p-6 flex flex-col md:col-span-2">
+            <div class="flex flex-wrap items-start justify-between gap-3 mb-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-rose-950/70 flex items-center justify-center text-rose-300 text-xl border border-rose-500/40">🖥️</div>
+                    <div>
+                        <h2 class="text-xl font-bold text-white tracking-tight">Compulsive Pornography / CSBD</h2>
+                        <span class="clinical-badge text-rose-300">ICD‑11 6C72</span>
+                    </div>
+                </div>
+            </div>
+            <p class="text-slate-300 text-sm leading-relaxed mb-5 max-w-3xl">
+                Escalating patterns, loss of intimacy, desensitization, distress despite consequences, and failed attempts to reduce use. 
+                Assessment based on <span class="text-rose-300 font-mono text-xs">CPUI‑9</span> and compulsive sexual behavior disorder criteria.
+            </p>
+            <div class="mt-auto">
+                <a href="Pornography.html" class="btn-test w-full inline-block text-center py-3 rounded-xl text-sm font-bold uppercase tracking-wide transition">⚕️ Start CSBD / pornography assessment →</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- clinical insight & next steps + COPS KC therapy integration -->
+    <div class="mt-6 bg-slate-900/40 border border-slate-700/50 rounded-2xl p-6">
+        <div class="flex flex-col md:flex-row gap-5 items-start md:items-center justify-between">
+            <div class="flex gap-4 items-start">
+                <div class="text-3xl">🙏</div>
+                <div>
+                    <h3 class="font-bold text-white text-md tracking-tight">Faith-Centered Assessment & Care Pathway</h3>
+                    <p class="text-slate-400 text-sm max-w-lg leading-relaxed mt-1">
+                        Each test includes validated questions (scored 0–4). After completion, you’ll receive a severity classification: 
+                        <span class="text-blue-300 font-mono text-xs">mild</span>, <span class="text-amber-300 font-mono text-xs">moderate</span>, or <span class="text-rose-300 font-mono text-xs">severe</span>, plus clinical recommendations. 
+                        <span class="block mt-2 text-amber-300">Based on your results, COPS KC offers <strong>faith-based online therapy, certified intensive outpatient programs, individual & group counseling, relapse prevention, and recovery housing</strong>. Call <span class="font-mono bg-black/50 px-1">816-923-9212</span> to speak with a counselor.</span>
+                    </p>
+                </div>
+            </div>
+            <div class="bg-black/30 px-4 py-2 rounded-xl text-center">
+                <div class="text-[10px] font-mono text-slate-400">⏱️ average completion</div>
+                <div class="text-lg font-bold text-white">4–6 min</div>
+            </div>
+        </div>
+        <div class="section-divider my-5"></div>
+        <div class="flex flex-wrap gap-4 text-[11px] font-mono text-slate-500 justify-between items-center">
+            <span>✓ AUDIT · FTND · CSSA · PGSI · CUDIT‑R · COMM · CPUI‑9</span>
+            <span>⚕️ Based on DSM‑5‑TR & ICD‑11 criteria</span>
+            <span>🔐 Anonymous · results never saved remotely</span>
+            <span>✝️ COPS KC — Spiritually integrated SUD treatment</span>
+        </div>
+    </div>
+
+    <!-- COPS KC Mission & Contact Integration (serious, supportive) -->
+    <footer class="mt-16 pt-8 border-t border-slate-800/50 text-slate-500 text-center text-xs">
+        <div class="grid md:grid-cols-3 gap-6 mb-8 text-left">
+            <div>
+                <div class="text-amber-400 font-bold mb-2 text-sm">COPS KC Mission</div>
+                <p class="text-slate-400 text-xs leading-relaxed">Founded in 2002 as a faith-based organization, COPS incorporates spirituality into our certified outpatient Substance Use Disorder (SUD) treatment program to help individuals achieve stable recovery and become productive members of their families and communities.</p>
+            </div>
+            <div>
+                <div class="text-amber-400 font-bold mb-2 text-sm">Recovery Services</div>
+                <ul class="text-slate-400 text-xs space-y-1">
+                    <li>• Certified Intensive Outpatient Treatment</li>
+                    <li>• Individual & Group Counseling</li>
+                    <li>• Recovery Coaching & Care Coordination</li>
+                    <li>• Transitional Housing: House Israel, House Exodus</li>
+                    <li>• Relapse Prevention & Spiritual Guidance</li>
+                </ul>
+            </div>
+            <div>
+                <div class="text-amber-400 font-bold mb-2 text-sm">Get Help Today</div>
+                <p class="text-slate-400 text-xs">📞 <span class="font-mono text-amber-300">816-923-9212</span><br>📍 3800 Agnes Ave Ste.2, Kansas City, MO 64128<br>✝️ "Sobriety is a state of mind not a measure of time"<br>🔗 <a href="https://www.copsakc.com" class="text-blue-400 underline" target="_blank">www.copsakc.com</a></p>
+            </div>
+        </div>
+        <div class="flex flex-wrap justify-center gap-5 mb-5">
+            <span class="font-mono">📞 SAMHSA National Helpline: 1-800-662-4357</span>
+            <span class="font-mono">🌐 COPS KC — Since 2002 · Certified Outpatient Program</span>
+            <span class="font-mono">📘 Christ-Centered Healing & Clinical Excellence</span>
+        </div>
+        <p class="max-w-2xl mx-auto leading-relaxed text-slate-600">
+            This assessment gateway is provided by <strong class="text-amber-300">Counselors Obediently Preventing Substance Abuse (COPS KC)</strong>. These self-assessment tools are not a substitute for professional diagnosis. 
+            If you are in crisis or need immediate support, please contact emergency services or call COPS KC directly at <span class="font-mono">816-923-9212</span> for faith-based, certified substance use treatment and online therapy options.
+        </p>
+        <p class="mt-4 text-slate-700 text-[10px]">© COPS KC — Clinical Compass | Addiction Severity Assessment Gateway | Faith-Based Recovery Integration</p>
+    </footer>
+</div>
+
+<script>
+    // Acknowledge COPS KC as the host organization and provider of online therapy for drug users.
+    document.querySelectorAll('.btn-test').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const href = btn.getAttribute('href');
+            if (href && href.startsWith('/test/')) {
+                console.log(`[COPS KC Clinical Gateway] Navigating to evidence-based assessment: ${href}. After assessment, clients can call 816-923-9212 for faith-based online therapy and certified SUD treatment.`);
+            }
+        });
+    });
+    console.log('COPS KC Assessment Gateway — Faith-based SUD treatment provider since 2002. Offering online therapy, intensive outpatient programs, recovery housing, and spiritual healing. Call 816-923-9212.');
+</script>
+</body>
+</html>

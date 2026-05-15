@@ -1,0 +1,414 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>COPS KC | Caffeine Use Disorder & Behavioral Patterns Assessment (CUDIT-R+)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0F0B1A;
+            background-image: radial-gradient(circle at 80% 20%, rgba(120, 80, 200, 0.08) 0%, #0F0B1A 95%);
+            color: #E9ECF2;
+        }
+        .question-card {
+            background: rgba(18, 20, 35, 0.8);
+            backdrop-filter: blur(3px);
+            border: 1px solid rgba(139, 92, 246, 0.35);
+            border-radius: 1.25rem;
+            transition: all 0.2s;
+        }
+        .btn-caffeine {
+            background: linear-gradient(95deg, #7C3AED, #6D28D9);
+            transition: 0.2s;
+        }
+        .btn-caffeine:hover { background: linear-gradient(95deg, #8B5CF6, #7C3AED); transform: translateY(-1px); box-shadow: 0 8px 20px rgba(124,58,237,0.35); }
+        .severity-badge { font-family: 'JetBrains Mono', monospace; padding: 0.25rem 1rem; border-radius: 40px; font-weight: 600; }
+        .clinical-badge { background: #2D2A42; border-radius: 40px; padding: 0.2rem 0.8rem; font-size: 0.7rem; font-weight: 500; letter-spacing: 0.3px; }
+        input, select { background: #111228; border: 1px solid #2D2A4A; border-radius: 0.75rem; padding: 0.7rem 1rem; color: white; outline: none; transition: 0.2s; }
+        input:focus, select:focus { border-color: #A78BFA; ring: 2px solid #8B5CF6; }
+        label { font-size: 0.75rem; font-weight: 500; color: #A78BFA; margin-bottom: 0.25rem; display: block; letter-spacing: 0.3px; }
+        .option-row { background: rgba(34, 31, 58, 0.5); border-radius: 0.75rem; padding: 0.7rem 1rem; cursor: pointer; transition: 0.15s; border: 1px solid transparent; }
+        .option-row.selected { background: #4C1D95; border-color: #C084FC; box-shadow: 0 0 0 1px #A78BFA; }
+        .option-row:hover { background: #3B2C6B; }
+        .toast-message {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 1000;
+            background: #1E1B2E;
+            border-left: 4px solid #A78BFA;
+            padding: 12px 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.6);
+            font-size: 0.85rem;
+            font-weight: 500;
+            backdrop-filter: blur(8px);
+        }
+        .toast-success { border-left-color: #34D399; }
+        .toast-error { border-left-color: #F87171; }
+        hr.divider-glow { border-color: rgba(139, 92, 246, 0.3); }
+        .insight-badge { background: #2A2442; border-radius: 20px; padding: 0.3rem 0.8rem; font-size: 0.7rem; font-family: monospace; }
+    </style>
+</head>
+<body class="py-8 px-4">
+
+<div class="max-w-3xl mx-auto relative z-10">
+    <!-- Header with COPS KC + Caffeine specific -->
+    <div class="mb-8 text-center md:text-left">
+        <div class="flex justify-between items-center flex-wrap gap-3 border-b border-purple-900/50 pb-5 mb-6">
+            <div>
+                <div class="flex items-center gap-2 mb-2 justify-center md:justify-start">
+                    <span class="text-purple-300 text-2xl">⚡</span>
+                    <span class="text-[10px] font-mono tracking-[0.2em] text-slate-400">COPS KC · BEHAVIORAL HEALTH & DEPENDENCY ANALYSIS</span>
+                </div>
+                <h1 class="text-3xl md:text-4xl font-bold text-white">Caffeine Use Disorder<br><span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-300 to-fuchsia-400">Advanced Pattern & Severity Assessment</span></h1>
+                <p class="text-slate-300 text-sm max-w-xl mt-2">Extended CUDIT-R based assessment + behavioral dependency mapping (caffeine tolerance, withdrawal, compulsive use, and psychosocial impact). Identify your risk level and receive personalized clinical insights.</p>
+            </div>
+            <div class="bg-black/40 rounded-2xl px-4 py-2 text-center border border-purple-800/50">
+                <div class="text-[10px] font-mono text-purple-300">COPS KC - Holistic Assessment</div>
+                <div class="text-sm font-bold text-amber-200">☕ 816-923-9212 · Therapy & Recovery</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Questionnaire container (14 items: consumption, tolerance, withdrawal, compulsive patterns, sleep, anxiety, social/health consequences) -->
+    <div id="caffeineQuizContainer" class="space-y-5 mb-8"></div>
+
+    <!-- Result Section + detailed behavioral insights (hidden until complete) -->
+    <div id="resultSection" class="hidden question-card p-6 mb-8 transition-all"></div>
+
+    <!-- Client information + Formspree for caffeine assessment submission -->
+    <div id="infoFormSection" class="hidden question-card p-6 mb-8 border-t-4 border-purple-500/60">
+        <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">📝 Submit Caffeine Assessment Report</h3>
+        <p class="text-slate-300 text-sm mb-5">Complete the confidential analysis. Your name, contact details, city/country, and full Caffeine Severity Index will be securely transmitted to COPS KC clinical team via Formspree. We provide faith-based & science-backed recovery strategies for behavioral dependencies.</p>
+        
+        <!-- Active Formspree endpoint (ready to use; clinic can replace with personal ID) -->
+        <form id="caffeineClientForm" action="https://formspree.io/f/mgvqegpa" method="POST">
+            <input type="hidden" name="_subject" value="NEW Caffeine Use Disorder Assessment - COPS KC">
+            <input type="hidden" name="_replyto" id="caffeineReplytoHidden" value="">
+            <input type="hidden" name="_ajax" value="true">
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+                <div>
+                    <label>Full Name *</label>
+                    <input type="text" name="Name" required id="fullNameCaf" placeholder="e.g., Taylor Morgan" class="w-full">
+                </div>
+                <div>
+                    <label>Phone Number *</label>
+                    <input type="tel" name="Phone" required id="phoneCaf" placeholder="+1 816-923-9212" class="w-full">
+                </div>
+                <div>
+                    <label>Email Address *</label>
+                    <input type="email" name="Email" required id="emailCaf" placeholder="client@example.com" class="w-full">
+                </div>
+                <div>
+                    <label>City *</label>
+                    <input type="text" name="City" required id="cityCaf" placeholder="Kansas City" class="w-full">
+                </div>
+                <div class="md:col-span-2">
+                    <label>Country *</label>
+                    <input type="text" name="Country" required id="countryCaf" placeholder="United States" class="w-full">
+                </div>
+                <div class="md:col-span-2">
+                    <label>Caffeine Severity Index (Auto-filled - Full clinical summary)</label>
+                    <input type="text" name="Caffeine_Score_Result" id="cafScoreResultField" readonly class="w-full bg-slate-800/60 text-purple-300 font-mono" value="Awaiting completion">
+                </div>
+            </div>
+            <div class="flex flex-wrap gap-4 items-center justify-between">
+                <button type="submit" id="submitCafReportBtn" class="btn-caffeine text-white font-bold py-3 px-6 rounded-xl text-sm uppercase tracking-wide disabled:opacity-50 transition-all">📬 Send Caffeine Assessment to COPS KC</button>
+                <span class="text-[11px] font-mono text-slate-400">🔒 Holistic intake · Behavioral coaching & spiritual support</span>
+            </div>
+            <p class="text-xs text-slate-500 mt-4">* By submitting, you agree to receive guidance from COPS KC regarding substance & behavioral health. Caffeine dependency can be managed with structured interventions.</p>
+        </form>
+    </div>
+
+    <footer class="text-center text-slate-500 text-xs pt-8 border-t border-purple-900/30 mt-6">
+        <p>📞 COPS KC Helpline: <span class="font-mono text-purple-300">816-923-9212</span> | 3800 Agnes Ave Ste.2, Kansas City, MO | Faith-Based & Evidence-Based Recovery</p>
+        <p class="mt-2">© Counselors Obediently Preventing Substance Abuse — Specialized Caffeine Behavioral Analysis, IOP & Wellness Programs</p>
+    </footer>
+</div>
+
+<script>
+    // ============================================================
+    // ADVANCED CAFFEINE USE DISORDER ASSESSMENT (CUDIT-R + clinical extension)
+    // Domains: Consumption frequency, Quantity, Tolerance, Withdrawal,
+    // Compulsive use, Failed control, Time spent, Neglect of activities,
+    // Psychological/physical problems (anxiety, sleep disruption), Hazardous use, Craving.
+    // Total possible score: 0-48 (High severity mapping)
+    // Each item: 0-4 (except some adapted to linear severity mapping for precision)
+    // ============================================================
+    const caffeineQuestions = [
+        { text: "How often do you consume any caffeinated beverage or product (coffee, energy drinks, tea, pre-workout, caffeine pills)?", 
+          options: ["Never or less than once weekly (0)", "1-3 days per week (1)", "4-6 days per week (2)", "Once daily (3)", "2 or more times daily (4)"], values: [0,1,2,3,4] },
+        { text: "On a typical day of consumption, how many milligrams (mg) of caffeine do you estimate taking? (1 coffee ~95mg, energy drink ~160mg, soda ~35mg, tea ~50mg)", 
+          options: ["< 50mg (0)", "50–150mg (1)", "151–300mg (2)", "301–500mg (3)", ">500mg (4)"], values: [0,1,2,3,4] },
+        { text: "Over the past 6 months, have you experienced tolerance — needing significantly more caffeine to achieve the same desired effect (alertness, energy)?", 
+          options: ["Never (0)", "Rarely (1)", "Sometimes (2)", "Often (3)", "Almost always / daily (4)"], values: [0,1,2,3,4] },
+        { text: "How often have you experienced withdrawal symptoms (headaches, fatigue, irritability, brain fog, low mood) when cutting down or missing caffeine?", 
+          options: ["No withdrawal (0)", "Mild / rare (1)", "Moderate / monthly (2)", "Severe / weekly (3)", "Very severe / daily or almost daily (4)"], values: [0,1,2,3,4] },
+        { text: "How often do you consume caffeine despite knowing it causes or worsens anxiety, palpitations, insomnia, or digestive issues?", 
+          options: ["Never (0)", "Less than monthly (1)", "Monthly (2)", "Weekly (3)", "Daily or almost daily (4)"], values: [0,1,2,3,4] },
+        { text: "How often do you experience insomnia or disrupted sleep (difficulty falling/staying asleep) due to caffeine consumption (including late intake)?", 
+          options: ["Never (0)", "Rarely (< monthly) (1)", "Monthly (2)", "Weekly (3)", "Daily/almost daily (4)"], values: [0,1,2,3,4] },
+        { text: "In the last year, how often have you tried to cut down or control your caffeine intake and found you were unable to do so?", 
+          options: ["Never tried or always succeeded (0)", "Tried but failed occasionally (1)", "Failed multiple times (2)", "Often unable to cut down (3)", "Consistently unable to control despite multiple attempts (4)"], values: [0,1,2,3,4] },
+        { text: "How much time do you spend obtaining, consuming, or recovering from caffeine effects (including planning your day around caffeine sources)?", 
+          options: ["Minimal (< 15 min/day) (0)", "15-30 min/day (1)", "30-60 min/day (2)", "1-2 hours/day (3)", "More than 2 hours/day (4)"], values: [0,1,2,3,4] },
+        { text: "Have you neglected social, occupational, or recreational activities due to caffeine use (e.g., avoiding events without caffeine access, missing deadlines due to crashes)?", 
+          options: ["Never (0)", "Once or twice (1)", "Occasionally (2)", "Frequently (3)", "Very often / major impact (4)"], values: [0,1,2,3,4] },
+        { text: "How often do you experience strong cravings, urges, or an intense desire to consume caffeine that is hard to resist?", 
+          options: ["Never (0)", "Less than monthly (1)", "Monthly (2)", "Weekly (3)", "Daily or several times daily (4)"], values: [0,1,2,3,4] },
+        { text: "How often does caffeine use interfere with your physical health (e.g., acid reflux, heart racing, jitteriness, high blood pressure)?", 
+          options: ["Never (0)", "Rarely (1)", "Monthly (2)", "Weekly (3)", "Daily / persistent (4)"], values: [0,1,2,3,4] },
+        { text: "Has a friend, family member, or healthcare provider expressed concern about your caffeine intake or suggested reducing?", 
+          options: ["No (0)", "Yes, but not in last year (1)", "Yes, within last year (2)", "Multiple concerns / pressure to change (3)", "Professional intervention recommended (4)"], values: [0,1,2,3,4] },
+        { text: "How often do you consume caffeine later than 4 PM, directly impacting next-day fatigue or creating a cycle of dependency?", 
+          options: ["Never / rarely (0)", "Occasionally (1-2x week) (1)", "3-4x per week (2)", "5-6x per week (3)", "Every day (4)"], values: [0,1,2,3,4] },
+        { text: "Do you experience rebound fatigue or mood crashes when caffeine wears off, leading you to consume more to counteract?", 
+          options: ["Never (0)", "Mild / rarely (1)", "Moderate / sometimes (2)", "Strong crashes / often (3)", "Severe daily crash & compulsive redosing (4)"], values: [0,1,2,3,4] }
+    ];
+
+    let userCaffeineScores = new Array(caffeineQuestions.length).fill(null);
+    let totalCaffeineScore = 0;
+    let severityCaffeineLevel = "";
+    let severityDetails = "";
+    let behavioralInsights = "";
+
+    const quizContainer = document.getElementById("caffeineQuizContainer");
+    const resultSection = document.getElementById("resultSection");
+    const infoFormSection = document.getElementById("infoFormSection");
+    const cafScoreField = document.getElementById("cafScoreResultField");
+    const cafForm = document.getElementById("caffeineClientForm");
+    const submitBtn = document.getElementById("submitCafReportBtn");
+
+    function showToast(message, isError = false) {
+        const existing = document.querySelector('.toast-message');
+        if(existing) existing.remove();
+        const toastDiv = document.createElement('div');
+        toastDiv.className = `toast-message ${isError ? 'toast-error' : 'toast-success'}`;
+        toastDiv.innerHTML = `<span>${isError ? '⚠️ ' : '✓ '}${message}</span>`;
+        document.body.appendChild(toastDiv);
+        setTimeout(() => toastDiv.remove(), 4800);
+    }
+
+    function renderCaffeineQuestions() {
+        quizContainer.innerHTML = "";
+        caffeineQuestions.forEach((q, idx) => {
+            const selectedVal = userCaffeineScores[idx];
+            const card = document.createElement("div");
+            card.className = "question-card p-5";
+            card.innerHTML = `
+                <div class="flex justify-between items-start mb-3 flex-wrap gap-2">
+                    <h3 class="font-bold text-white text-md">${idx+1}. ${q.text}</h3>
+                    <span class="clinical-badge text-xs text-purple-200">score: ${selectedVal !== null ? selectedVal : "—"}</span>
+                </div>
+                <div class="space-y-2" id="caf-options-${idx}"></div>
+            `;
+            quizContainer.appendChild(card);
+            const optionsDiv = card.querySelector(`#caf-options-${idx}`);
+            q.options.forEach((opt, optIdx) => {
+                const optValue = q.values[optIdx];
+                const optionDiv = document.createElement("div");
+                optionDiv.className = `option-row text-sm text-slate-200 flex justify-between items-center ${selectedVal === optValue ? 'selected' : ''}`;
+                optionDiv.innerHTML = `<span>${opt}</span><span class="text-xs font-mono text-purple-300">${optValue} pts</span>`;
+                optionDiv.addEventListener("click", () => {
+                    userCaffeineScores[idx] = optValue;
+                    renderCaffeineQuestions();
+                    computeCaffeineTotalAndResult();
+                });
+                optionsDiv.appendChild(optionDiv);
+            });
+        });
+    }
+
+    // Generate detailed behavioral pattern report based on subscales
+    function generateBehavioralInsights(score, answersArray) {
+        const consumptionIdx = answersArray[0] || 0;
+        const toleranceIdx = answersArray[2] || 0;
+        const withdrawalIdx = answersArray[3] || 0;
+        const controlIdx = answersArray[6] || 0;
+        const sleepIdx = answersArray[5] || 0;
+        const cravingIdx = answersArray[9] || 0;
+        let insights = [];
+        if (consumptionIdx >= 3) insights.push("⚡ High daily intake frequency suggests heavy dependence risk.");
+        if (toleranceIdx >= 3) insights.push("📈 Significant tolerance escalation — hallmark of substance use disorder progression.");
+        if (withdrawalIdx >= 3) insights.push("⚠️ Marked withdrawal symptoms indicate physiological dependence. Tapering recommended.");
+        if (controlIdx >= 3) insights.push("🔄 Repeated failed attempts to cut down suggest compulsive pattern & loss of control.");
+        if (sleepIdx >= 3) insights.push("🌙 Chronic sleep disruption due to caffeine — consider circadian rhythm intervention.");
+        if (cravingIdx >= 3) insights.push("🧠 Intense cravings drive automatic consumption; behavioral therapy & mindfulness effective.");
+        if (answersArray[4] >= 3) insights.push("❤️ Continued use despite physical/psychological harm (anxiety, GI issues) indicates hazardous use.");
+        if (answersArray[7] >= 3) insights.push("⏳ Excessive time spent on caffeine rituals reduces life quality — possible behavioral addiction.");
+        if (insights.length === 0) insights.push("🌿 Low-risk pattern. Maintain moderate consumption, monitor sleep and anxiety.");
+        return insights.join(" · ");
+    }
+
+    function computeCaffeineTotalAndResult() {
+        const allAnswered = userCaffeineScores.every(s => s !== null);
+        if (!allAnswered) {
+            resultSection.classList.add("hidden");
+            infoFormSection.classList.add("hidden");
+            return;
+        }
+        totalCaffeineScore = userCaffeineScores.reduce((a,b) => a + b, 0);
+        const maxPossible = caffeineQuestions.length * 4;
+        
+        // advanced clinical severity classification (CUDIT-R extended)
+        if (totalCaffeineScore <= 8) {
+            severityCaffeineLevel = "Low Risk / Minimal Impact";
+            severityDetails = "Occasional or low-dose caffeine consumption. No signs of dependence or clinically significant distress. Maintain healthy sleep and hydration. Consider caffeine-free days.";
+        } else if (totalCaffeineScore <= 18) {
+            severityCaffeineLevel = "Mild Caffeine Use Disorder / At-Risk Pattern";
+            severityDetails = "Moderate intake with emerging signs of tolerance or mild withdrawal. Potential for dependency escalation. Behavioral strategies and gradual reduction can prevent progression. COPS KC offers coaching for habit regulation.";
+        } else if (totalCaffeineScore <= 30) {
+            severityCaffeineLevel = "Moderate Caffeine Use Disorder";
+            severityDetails = "Clear evidence of compulsive use, withdrawal, and interference with sleep or anxiety. May impact work performance and daily routines. Structured reduction plan and accountability recommended. Contact COPS KC for outpatient support.";
+        } else {
+            severityCaffeineLevel = "Severe Caffeine Use Disorder + High Behavioral Dependency";
+            severityDetails = "High-dose, persistent intake with strong cravings, failed control attempts, significant physical/psychosocial consequences. Meets DSM-5 criteria for Caffeine Use Disorder (research threshold). Professional intervention, medical tapering, and integrated behavioral therapy advised. Call 816-923-9212 for specialized recovery plans.";
+        }
+        
+        behavioralInsights = generateBehavioralInsights(totalCaffeineScore, userCaffeineScores);
+        
+        // Display result card
+        resultSection.classList.remove("hidden");
+        const severityColorClass = totalCaffeineScore <= 8 ? "text-emerald-300 bg-emerald-950/30 border-emerald-500/40" :
+                                   (totalCaffeineScore <= 18 ? "text-yellow-300 bg-yellow-950/30 border-yellow-500/40" :
+                                   (totalCaffeineScore <= 30 ? "text-orange-300 bg-orange-950/30 border-orange-500/40" : "text-rose-300 bg-rose-950/30 border-rose-500/40"));
+        
+        resultSection.innerHTML = `
+            <div class="flex flex-col gap-4">
+                <div class="flex justify-between items-center flex-wrap gap-2">
+                    <h2 class="text-2xl font-bold text-white">Caffeine Severity Index: <span class="text-purple-300">${totalCaffeineScore}</span> / ${maxPossible}</h2>
+                    <span class="severity-badge ${severityColorClass} border">${severityCaffeineLevel}</span>
+                </div>
+                <div class="bg-black/30 p-4 rounded-xl">
+                    <p class="text-slate-200 leading-relaxed">${severityDetails}</p>
+                    <div class="mt-4 bg-indigo-950/30 p-3 rounded-lg border-l-4 border-purple-400">
+                        <p class="text-xs font-mono uppercase tracking-wide text-purple-300 mb-1">🧠 BEHAVIORAL PATTERN INSIGHTS</p>
+                        <p class="text-sm text-slate-200">${behavioralInsights}</p>
+                    </div>
+                    <div class="mt-4 flex flex-wrap gap-2 text-[11px] font-mono">
+                        <span class="insight-badge">☕ 0-8: Low risk</span>
+                        <span class="insight-badge">⚠️ 9-18: Mild / At-risk</span>
+                        <span class="insight-badge">🔶 19-30: Moderate CUD</span>
+                        <span class="insight-badge">🔴 31-48: Severe CUD + dependency</span>
+                    </div>
+                </div>
+                <div class="border-t border-purple-800/40 pt-3 mt-2 text-sm text-amber-200 flex flex-wrap justify-between items-center">
+                    <span>✝️ Faith-based & clinical pathways · Caffeine withdrawal management & holistic therapy</span>
+                    <a href="tel:+18169239212" class="underline text-purple-300 text-xs">Call COPS KC: 816-923-9212</a>
+                </div>
+            </div>
+        `;
+        
+        infoFormSection.classList.remove("hidden");
+        if (cafScoreField) {
+            cafScoreField.value = `Caffeine Index: ${totalCaffeineScore} (${severityCaffeineLevel}) | Pattern: ${behavioralInsights.substring(0, 100)}`;
+        }
+        
+        // attach hidden fields with full clinical data
+        let hiddenSummary = document.getElementById("cafHiddenSummary");
+        if (!hiddenSummary) {
+            hiddenSummary = document.createElement("input");
+            hiddenSummary.type = "hidden";
+            hiddenSummary.name = "caffeine_clinical_summary";
+            hiddenSummary.id = "cafHiddenSummary";
+            cafForm.appendChild(hiddenSummary);
+        }
+        hiddenSummary.value = `CUDIT-R Score: ${totalCaffeineScore} | Severity: ${severityCaffeineLevel} | Behavioral Profile: ${behavioralInsights}`;
+        
+        let hiddenDesc = document.getElementById("cafSeverityDesc");
+        if (!hiddenDesc) {
+            hiddenDesc = document.createElement("input");
+            hiddenDesc.type = "hidden";
+            hiddenDesc.name = "severity_description";
+            hiddenDesc.id = "cafSeverityDesc";
+            cafForm.appendChild(hiddenDesc);
+        }
+        hiddenDesc.value = severityDetails;
+    }
+
+    // Formspree submission handler for caffeine form
+    async function submitCaffeineToFormspree(formElement) {
+        const formData = new FormData(formElement);
+        const emailValue = document.getElementById("emailCaf").value.trim();
+        if (emailValue) {
+            formData.set("_replyto", emailValue);
+            document.getElementById("caffeineReplytoHidden").value = emailValue;
+        } else {
+            formData.set("_replyto", "noreply@copskc.org");
+        }
+        formData.set("submitted_at", new Date().toISOString());
+        formData.set("assessment_type", "Caffeine Use Disorder (CUDIT-R Extended)");
+        
+        try {
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Submitting Report...";
+            const response = await fetch(formElement.action, {
+                method: "POST",
+                body: formData,
+                headers: { 'Accept': 'application/json' }
+            });
+            if (response.ok) {
+                showToast("✅ Caffeine assessment submitted! A COPS KC counselor will reach out with personalized strategies.", false);
+                submitBtn.innerText = "✓ Report Sent ✓";
+                submitBtn.disabled = true;
+                // disable input fields to prevent resubmit confusion but keep info visible
+                document.querySelectorAll("#caffeineClientForm input[type='text'], #caffeineClientForm input[type='email'], #caffeineClientForm input[type='tel']").forEach(inp => {
+                    if(inp.id !== "cafScoreResultField") inp.disabled = true;
+                });
+                const confirmMsg = document.createElement("p");
+                confirmMsg.className = "text-green-400 text-xs mt-3";
+                confirmMsg.innerText = "✓ Your behavioral assessment has been securely delivered to COPS KC clinical team. Expect a response within 48 hours.";
+                document.querySelector("#infoFormSection .flex-wrap").after(confirmMsg);
+                return true;
+            } else {
+                showToast("Submission error. Please call 816-923-9212 for direct assistance.", true);
+                submitBtn.disabled = false;
+                submitBtn.innerText = "📬 Send Caffeine Assessment to COPS KC";
+                return false;
+            }
+        } catch (err) {
+            console.error(err);
+            showToast("Network error. Please contact COPS KC directly.", true);
+            submitBtn.disabled = false;
+            submitBtn.innerText = "📬 Send Caffeine Assessment to COPS KC";
+            return false;
+        }
+    }
+
+    cafForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        if (userCaffeineScores.some(s => s === null)) {
+            showToast("Please complete all 14 caffeine assessment items before submitting.", true);
+            return;
+        }
+        const name = document.getElementById("fullNameCaf").value.trim();
+        const phone = document.getElementById("phoneCaf").value.trim();
+        const email = document.getElementById("emailCaf").value.trim();
+        const city = document.getElementById("cityCaf").value.trim();
+        const country = document.getElementById("countryCaf").value.trim();
+        if (!name || !phone || !email || !city || !country) {
+            showToast("All fields required: Name, Phone, Email, City, Country.", true);
+            return;
+        }
+        if (!email.includes("@") || phone.length < 6) {
+            showToast("Valid email and phone number required.", true);
+            return;
+        }
+        // update final score hidden fields dynamic again
+        let summaryField = document.getElementById("cafHiddenSummary");
+        if (summaryField) summaryField.value = `CUDIT-R Score: ${totalCaffeineScore} | Severity: ${severityCaffeineLevel} | Behavioral Insights: ${behavioralInsights}`;
+        await submitCaffeineToFormspree(cafForm);
+    });
+    
+    renderCaffeineQuestions();
+</script>
+</body>
+</html>
+```

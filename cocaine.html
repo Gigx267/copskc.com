@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>COPS KC | Cocaine Use Disorder & Stimulant Dependence Assessment (Cocaine-specific Clinical Protocol)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0A0A0F;
+            background-image: radial-gradient(circle at 90% 10%, rgba(236, 72, 153, 0.08) 0%, #0A0A0F 95%);
+            color: #F1F5F9;
+        }
+        .question-card {
+            background: rgba(22, 20, 35, 0.85);
+            backdrop-filter: blur(3px);
+            border: 1px solid rgba(236, 72, 153, 0.4);
+            border-radius: 1.25rem;
+            transition: all 0.2s;
+        }
+        .btn-cocaine {
+            background: linear-gradient(95deg, #DB2777, #BE185D);
+            transition: 0.2s;
+        }
+        .btn-cocaine:hover { background: linear-gradient(95deg, #EC4899, #DB2777); transform: translateY(-1px); box-shadow: 0 8px 20px rgba(236,72,153,0.35); }
+        .severity-badge { font-family: 'JetBrains Mono', monospace; padding: 0.25rem 1rem; border-radius: 40px; font-weight: 600; }
+        .clinical-badge { background: #2D1B2E; border-radius: 40px; padding: 0.2rem 0.8rem; font-size: 0.7rem; font-weight: 500; letter-spacing: 0.3px; }
+        input, select { background: #111122; border: 1px solid #4A2A4A; border-radius: 0.75rem; padding: 0.7rem 1rem; color: white; outline: none; transition: 0.2s; }
+        input:focus, select:focus { border-color: #F472B6; ring: 2px solid #EC4899; }
+        label { font-size: 0.75rem; font-weight: 500; color: #F9A8D4; margin-bottom: 0.25rem; display: block; letter-spacing: 0.3px; }
+        .option-row { background: rgba(58, 35, 58, 0.5); border-radius: 0.75rem; padding: 0.7rem 1rem; cursor: pointer; transition: 0.15s; border: 1px solid transparent; }
+        .option-row.selected { background: #831843; border-color: #EC4899; box-shadow: 0 0 0 1px #F472B6; }
+        .option-row:hover { background: #6B2E5A; }
+        .toast-message {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 1000;
+            background: #1E1A2A;
+            border-left: 4px solid #EC4899;
+            padding: 12px 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.6);
+            font-size: 0.85rem;
+            font-weight: 500;
+            backdrop-filter: blur(8px);
+        }
+        .toast-success { border-left-color: #EC4899; }
+        .toast-error { border-left-color: #EF4444; }
+        .insight-badge { background: #2A1F35; border-radius: 20px; padding: 0.3rem 0.8rem; font-size: 0.7rem; font-family: monospace; }
+        hr.divider-glow { border-color: rgba(236, 72, 153, 0.25); }
+    </style>
+</head>
+<body class="py-8 px-4">
+
+<div class="max-w-3xl mx-auto relative z-10">
+    <!-- Header with COPS KC + Cocaine specific -->
+    <div class="mb-8 text-center md:text-left">
+        <div class="flex justify-between items-center flex-wrap gap-3 border-b border-pink-900/50 pb-5 mb-6">
+            <div>
+                <div class="flex items-center gap-2 mb-2 justify-center md:justify-start">
+                    <span class="text-pink-300 text-2xl"></span>
+                    <span class="text-[10px] font-mono tracking-[0.2em] text-slate-400">COPS KC · STIMULANT DISORDER & COCAINE DEPENDENCE ANALYSIS</span>
+                </div>
+                <h1 class="text-3xl md:text-4xl font-bold text-white">Cocaine Use Disorder<br><span class="text-transparent bg-clip-text bg-gradient-to-r from-pink-300 to-rose-400">Advanced Clinical Severity & Stimulant Dependence Assessment</span></h1>
+                <p class="text-slate-300 text-sm max-w-xl mt-2">Extended cocaine-specific assessment (Cocaine CUDIT-R + DSM-5 criteria) covering craving, binge patterns, withdrawal, psychosocial collapse, crack/cocaine routes, and medical consequences. Identify severity and receive immediate clinical guidance.</p>
+            </div>
+            <div class="bg-black/40 rounded-2xl px-4 py-2 text-center border border-pink-800/50">
+                <div class="text-[10px] font-mono text-pink-300">COPS KC - Stimulant Recovery</div>
+                <div class="text-sm font-bold text-amber-200">📞 816-923-9212 · Immediate Crisis & IOP</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Questionnaire container (15 items: frequency, quantity, craving, binge, withdrawal, tolerance, financial/consequences, etc) -->
+    <div id="cocaineQuizContainer" class="space-y-5 mb-8"></div>
+
+    <!-- Result Section + detailed behavioral insights (hidden until complete) -->
+    <div id="resultSection" class="hidden question-card p-6 mb-8 transition-all"></div>
+
+    <!-- Client information + Formspree for cocaine assessment submission -->
+    <div id="infoFormSection" class="hidden question-card p-6 mb-8 border-t-4 border-pink-500/60">
+        <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">📋 Submit Cocaine Dependence Assessment Report</h3>
+        <p class="text-slate-300 text-sm mb-5">Strictly confidential clinical summary. Your name, contact details, and full Cocaine Severity Index will be securely transmitted to COPS KC clinical team via Formspree. We provide faith-based & evidence-based stimulant recovery, contingency management, and intensive outpatient programming.</p>
+        
+        <!-- Active Formspree endpoint for cocaine-specific submissions -->
+        <form id="cocaineClientForm" action="https://formspree.io/f/mgvqegpa" method="POST">
+            <input type="hidden" name="_subject" value="NEW Cocaine Use Disorder Assessment - COPS KC">
+            <input type="hidden" name="_replyto" id="cocaineReplytoHidden" value="">
+            <input type="hidden" name="_ajax" value="true">
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+                <div>
+                    <label>Full Name *</label>
+                    <input type="text" name="Name" required id="fullNameCoc" placeholder="e.g., Marcus Webb" class="w-full">
+                </div>
+                <div>
+                    <label>Phone Number *</label>
+                    <input type="tel" name="Phone" required id="phoneCoc" placeholder="+1 816-923-9212" class="w-full">
+                </div>
+                <div>
+                    <label>Email Address *</label>
+                    <input type="email" name="Email" required id="emailCoc" placeholder="client@example.com" class="w-full">
+                </div>
+                <div>
+                    <label>City *</label>
+                    <input type="text" name="City" required id="cityCoc" placeholder="Kansas City" class="w-full">
+                </div>
+                <div class="md:col-span-2">
+                    <label>Country *</label>
+                    <input type="text" name="Country" required id="countryCoc" placeholder="United States" class="w-full">
+                </div>
+                <div class="md:col-span-2">
+                    <label>Cocaine Severity Index (Auto-filled - Full clinical summary)</label>
+                    <input type="text" name="Cocaine_Score_Result" id="cocScoreResultField" readonly class="w-full bg-slate-800/60 text-pink-300 font-mono" value="Awaiting completion">
+                </div>
+            </div>
+            <div class="flex flex-wrap gap-4 items-center justify-between">
+                <button type="submit" id="submitCocaineReportBtn" class="btn-cocaine text-white font-bold py-3 px-6 rounded-xl text-sm uppercase tracking-wide disabled:opacity-50 transition-all">❄️ Send Cocaine Assessment to COPS KC</button>
+                <span class="text-[11px] font-mono text-slate-400">🔒 24/7 Crisis support · Stimulant recovery pathways</span>
+            </div>
+            <p class="text-xs text-slate-500 mt-4">* By submitting, you agree to receive guidance from COPS KC regarding cocaine cessation, harm reduction, and personalized treatment planning. All information is HIPAA-compliant & confidential.</p>
+        </form>
+    </div>
+
+    <footer class="text-center text-slate-500 text-xs pt-8 border-t border-pink-900/30 mt-6">
+        <p>📞 COPS KC Helpline: <span class="font-mono text-pink-300">816-923-9212</span> | 3800 Agnes Ave Ste.2, Kansas City, MO | Faith-Based & Evidence-Based Recovery</p>
+        <p class="mt-2">© Counselors Obediently Preventing Substance Abuse — Specialized Cocaine Use Disorder Assessment & Stimulant IOP Programs</p>
+    </footer>
+</div>
+
+<script>
+    // ============================================================
+    // ADVANCED COCAINE USE DISORDER ASSESSMENT (Stimulant-specific CUDIT-R + DSM-5)
+    // Domains: Frequency, Quantity, Binge episodes, Craving, Withdrawal, Tolerance,
+    // Failed control, Time spent, Neglect of responsibilities, Financial/legal consequences,
+    // Physical/medical issues (cardiac, nasal damage), Psychosocial collapse, Risky use, Morning use.
+    // Score range 0-60 (high severity mapping). Each item 0-4.
+    // ============================================================
+    const cocaineQuestions = [
+        { text: "How often do you use cocaine (powder, crack, freebase) in any form?", 
+          options: ["Never or less than monthly (0)", "1-3 days per month (1)", "1-3 days per week (2)", "4-6 days per week (3)", "Daily or almost daily (4)"], values: [0,1,2,3,4] },
+        { text: "On a typical day of use, what quantity do you consume? (1 gram powder or 3-5 rocks crack)", 
+          options: ["<0.25g (0)", "0.25-0.5g (1)", "0.5-1g (2)", "1-2g (3)", ">2g or heavy binge (4)"], values: [0,1,2,3,4] },
+        { text: "How often do you engage in binge patterns (repeated use over several hours/days without stopping, until supply runs out or exhaustion)?", 
+          options: ["Never (0)", "Rarely (1)", "Monthly (2)", "Weekly (3)", "Daily / multiple binges per week (4)"], values: [0,1,2,3,4] },
+        { text: "How intense are your cravings or urges to use cocaine when you are not under the influence? (e.g., overwhelming desire)", 
+          options: ["No cravings (0)", "Mild / easily ignored (1)", "Moderate / distracting (2)", "Severe / hard to resist (3)", "Extreme / compulsive urge leading to use (4)"], values: [0,1,2,3,4] },
+        { text: "How often do you experience cocaine withdrawal symptoms (fatigue, depression, sleep disturbances, agitation, intense cravings, paranoia) when you stop or cut down?", 
+          options: ["No withdrawal (0)", "Mild / rarely (1)", "Moderate / monthly (2)", "Severe / weekly (3)", "Very severe / daily crash (4)"], values: [0,1,2,3,4] },
+        { text: "Over the past 6 months, have you developed tolerance — needing significantly more cocaine to achieve the same euphoric effect (or diminished effect with same amount)?", 
+          options: ["Never (0)", "Rarely (1)", "Sometimes (2)", "Often (3)", "Almost always / daily (4)"], values: [0,1,2,3,4] },
+        { text: "How often have you tried to cut down or control your cocaine use and found you were unable to do so?", 
+          options: ["Never tried or always succeeded (0)", "Tried but failed occasionally (1)", "Failed multiple times (2)", "Often unable to cut down (3)", "Consistently unable to control despite multiple attempts (4)"], values: [0,1,2,3,4] },
+        { text: "How much time do you spend obtaining, using, or recovering from cocaine (including seeking money, waiting for dealers, using, crash days)?", 
+          options: ["<1 hour/day (0)", "1-2 hours/day (1)", "2-4 hours/day (2)", "4-8 hours/day (3)", ">8 hours / entire day consumed (4)"], values: [0,1,2,3,4] },
+        { text: "Has cocaine use caused you to neglect work, school, family, or social responsibilities (e.g., missing work, losing relationships, abandoning hobbies)?", 
+          options: ["Never (0)", "Once or twice (1)", "Occasionally (2)", "Frequently (3)", "Very often / total collapse (4)"], values: [0,1,2,3,4] },
+        { text: "Have you experienced significant physical health consequences due to cocaine (nasal septum damage, chest pain, heart palpitations, seizures, stroke, respiratory issues)?", 
+          options: ["None (0)", "Minor symptoms (1)", "Moderate / medical visit (2)", "Severe / hospitalization (3)", "Life-threatening event / permanent damage (4)"], values: [0,1,2,3,4] },
+        { text: "How often does cocaine use affect your mental health (paranoia, psychosis, violent behavior, severe anxiety, mood swings, suicidal ideation)?", 
+          options: ["Never (0)", "Rarely (1)", "Monthly (2)", "Weekly (3)", "Daily / debilitating (4)"], values: [0,1,2,3,4] },
+        { text: "Have you experienced legal, financial, or housing problems because of cocaine (arrests, debt, eviction, job loss)?", 
+          options: ["No (0)", "Minor financial (1)", "Moderate / legal issues (2)", "Severe / criminal charges (3)", "Major life consequences / incarceration (4)"], values: [0,1,2,3,4] },
+        { text: "How often do you use cocaine in risky situations (while driving, operating machinery, unsafe sex, mixing with alcohol/opioids/benzodiazepines)?", 
+          options: ["Never (0)", "Rarely (1)", "Monthly (2)", "Weekly (3)", "Daily / high-risk poly-use (4)"], values: [0,1,2,3,4] },
+        { text: "Do you use cocaine first thing in the morning or within the first hour after waking to stop cravings or withdrawal?", 
+          options: ["Never (0)", "Less than weekly (1)", "1-3 times/week (2)", "4-6 times/week (3)", "Every morning (4)"], values: [0,1,2,3,4] },
+        { text: "How often do you continue using cocaine despite knowing it worsens a persistent medical or psychological problem (cardiac condition, bipolar disorder, hypertension, liver damage)?", 
+          options: ["Never (0)", "Rarely (1)", "Monthly (2)", "Weekly (3)", "Daily / compulsive despite awareness (4)"], values: [0,1,2,3,4] }
+    ];
+
+    let userScores = new Array(cocaineQuestions.length).fill(null);
+    let totalScore = 0;
+    let severityLevel = "";
+    let severityDescription = "";
+    let behavioralInsights = "";
+
+    const quizContainer = document.getElementById("cocaineQuizContainer");
+    const resultSection = document.getElementById("resultSection");
+    const infoFormSection = document.getElementById("infoFormSection");
+    const cocScoreField = document.getElementById("cocScoreResultField");
+    const cocForm = document.getElementById("cocaineClientForm");
+    const submitBtn = document.getElementById("submitCocaineReportBtn");
+
+    function showToast(message, isError = false) {
+        const existing = document.querySelector('.toast-message');
+        if(existing) existing.remove();
+        const toastDiv = document.createElement('div');
+        toastDiv.className = `toast-message ${isError ? 'toast-error' : 'toast-success'}`;
+        toastDiv.innerHTML = `<span>${isError ? '⚠️ ' : '✓ '}${message}</span>`;
+        document.body.appendChild(toastDiv);
+        setTimeout(() => toastDiv.remove(), 4800);
+    }
+
+    function renderCocaineQuestions() {
+        quizContainer.innerHTML = "";
+        cocaineQuestions.forEach((q, idx) => {
+            const selectedVal = userScores[idx];
+            const card = document.createElement("div");
+            card.className = "question-card p-5";
+            card.innerHTML = `
+                <div class="flex justify-between items-start mb-3 flex-wrap gap-2">
+                    <h3 class="font-bold text-white text-md">${idx+1}. ${q.text}</h3>
+                    <span class="clinical-badge text-xs text-pink-200">score: ${selectedVal !== null ? selectedVal : "—"}</span>
+                </div>
+                <div class="space-y-2" id="coc-options-${idx}"></div>
+            `;
+            quizContainer.appendChild(card);
+            const optionsDiv = card.querySelector(`#coc-options-${idx}`);
+            q.options.forEach((opt, optIdx) => {
+                const optValue = q.values[optIdx];
+                const optionDiv = document.createElement("div");
+                optionDiv.className = `option-row text-sm text-slate-200 flex justify-between items-center ${selectedVal === optValue ? 'selected' : ''}`;
+                optionDiv.innerHTML = `<span>${opt}</span><span class="text-xs font-mono text-pink-300">${optValue} pts</span>`;
+                optionDiv.addEventListener("click", () => {
+                    userScores[idx] = optValue;
+                    renderCocaineQuestions();
+                    computeTotalAndResult();
+                });
+                optionsDiv.appendChild(optionDiv);
+            });
+        });
+    }
+
+    function generateCocaineBehavioralInsights(score, answersArray) {
+        const freq = answersArray[0] || 0;
+        const binge = answersArray[2] || 0;
+        const craving = answersArray[3] || 0;
+        const withdrawal = answersArray[4] || 0;
+        const controlFail = answersArray[6] || 0;
+        const morningUse = answersArray[13] || 0;
+        const healthPhys = answersArray[9] || 0;
+        const psych = answersArray[10] || 0;
+        const legalFin = answersArray[11] || 0;
+        let insights = [];
+        if (freq >= 3) insights.push("⚡ Frequent (near-daily) cocaine use — high stimulant dependence risk.");
+        if (binge >= 3) insights.push("🔥 Recurrent binge episodes — hallmark of severe cocaine use disorder with loss of control.");
+        if (craving >= 3) insights.push("🧠 Severe/compulsive cravings — drives rapid relapse & continued use.");
+        if (withdrawal >= 3) insights.push("⚠️ Marked cocaine withdrawal (depression, fatigue, agitation) — physiological dependence requires medical oversight.");
+        if (controlFail >= 3) insights.push("🔄 Repeated failed control attempts — inability to stop despite consequences.");
+        if (morningUse >= 3) insights.push("🌅 Morning use to relieve withdrawal — severe dependence intensity.");
+        if (healthPhys >= 3) insights.push("❤️ Cardiovascular or nasal damage — urgent medical evaluation needed.");
+        if (psych >= 3) insights.push("🧠 Stimulant-induced paranoia/psychosis — high-risk mental health complication.");
+        if (legalFin >= 3) insights.push("⚖️ Legal or financial collapse due to cocaine — immediate intervention required.");
+        if (answersArray[7] >= 3) insights.push("⏳ Excessive time spent obtaining/using — complete functional impairment.");
+        if (insights.length === 0) insights.push("⚠️ Occasional or low-risk pattern — still high potential for escalation. Preventive counseling recommended.");
+        return insights.join(" · ");
+    }
+
+    function computeTotalAndResult() {
+        const allAnswered = userScores.every(s => s !== null);
+        if (!allAnswered) {
+            resultSection.classList.add("hidden");
+            infoFormSection.classList.add("hidden");
+            return;
+        }
+        totalScore = userScores.reduce((a,b) => a + b, 0);
+        const maxPossible = cocaineQuestions.length * 4;
+        
+        // Clinical severity thresholds for cocaine use disorder
+        if (totalScore <= 12) {
+            severityLevel = "Low Risk / Experimental or Occasional Use";
+            severityDescription = "Infrequent use without significant dependence features. However, cocaine carries high addiction potential. Early intervention and psychoeducation essential to prevent progression. COPS KC offers preventive counseling.";
+        } else if (totalScore <= 26) {
+            severityLevel = "Mild Cocaine Use Disorder (DSM-5 Mild)";
+            severityDescription = "Emerging loss of control, mild withdrawal or craving. Some functional interference. Stimulant-specific CBT and motivational interviewing recommended to interrupt escalation.";
+        } else if (totalScore <= 40) {
+            severityLevel = "Moderate Cocaine Use Disorder";
+            severityDescription = "Clear physiological dependence, binge episodes, failed quit attempts, and notable psychosocial/health consequences. Intensive outpatient program (IOP), contingency management, and relapse prevention essential. Contact COPS KC immediately.";
+        } else {
+            severityLevel = "Severe Cocaine Use Disorder / Stimulant Addiction";
+            severityDescription = "Daily or near-daily compulsive use, severe craving, withdrawal, significant medical (cardiac, nasal), psychiatric (paranoia, psychosis) and legal consequences. Requires intensive medical stabilization, residential or structured IOP, and long-term recovery support. Call 816-923-9212 for crisis intervention.";
+        }
+        
+        behavioralInsights = generateCocaineBehavioralInsights(totalScore, userScores);
+        
+        resultSection.classList.remove("hidden");
+        let severityColorClass = totalScore <= 12 ? "text-emerald-300 bg-emerald-950/30 border-emerald-500/40" :
+                                   (totalScore <= 26 ? "text-yellow-300 bg-yellow-950/30 border-yellow-500/40" :
+                                   (totalScore <= 40 ? "text-orange-300 bg-orange-950/30 border-orange-500/40" : "text-rose-300 bg-rose-950/30 border-rose-500/40"));
+        
+        resultSection.innerHTML = `
+            <div class="flex flex-col gap-4">
+                <div class="flex justify-between items-center flex-wrap gap-2">
+                    <h2 class="text-2xl font-bold text-white">Cocaine Severity Index: <span class="text-pink-300">${totalScore}</span> / ${maxPossible}</h2>
+                    <span class="severity-badge ${severityColorClass} border">${severityLevel}</span>
+                </div>
+                <div class="bg-black/30 p-4 rounded-xl">
+                    <p class="text-slate-200 leading-relaxed">${severityDescription}</p>
+                    <div class="mt-4 bg-rose-950/30 p-3 rounded-lg border-l-4 border-pink-400">
+                        <p class="text-xs font-mono uppercase tracking-wide text-pink-300 mb-1">🧠 STIMULANT DEPENDENCE INSIGHTS</p>
+                        <p class="text-sm text-slate-200">${behavioralInsights}</p>
+                    </div>
+                    <div class="mt-4 flex flex-wrap gap-2 text-[11px] font-mono">
+                        <span class="insight-badge">❄️ 0-12: Low risk</span>
+                        <span class="insight-badge">⚠️ 13-26: Mild CUD</span>
+                        <span class="insight-badge">🔶 27-40: Moderate CUD</span>
+                        <span class="insight-badge">🔴 41-60: Severe addiction</span>
+                    </div>
+                </div>
+                <div class="border-t border-pink-800/40 pt-3 mt-2 text-sm text-amber-200 flex flex-wrap justify-between items-center">
+                    <span>✝️ Faith-based & clinical stimulant recovery · Contingency management & IOP</span>
+                    <a href="tel:+18169239212" class="underline text-pink-300 text-xs">Call COPS KC: 816-923-9212</a>
+                </div>
+            </div>
+        `;
+        
+        infoFormSection.classList.remove("hidden");
+        if (cocScoreField) {
+            cocScoreField.value = `Cocaine Index: ${totalScore} (${severityLevel}) | Pattern: ${behavioralInsights.substring(0, 100)}`;
+        }
+        
+        let hiddenSummary = document.getElementById("cocHiddenSummary");
+        if (!hiddenSummary) {
+            hiddenSummary = document.createElement("input");
+            hiddenSummary.type = "hidden";
+            hiddenSummary.name = "cocaine_clinical_summary";
+            hiddenSummary.id = "cocHiddenSummary";
+            cocForm.appendChild(hiddenSummary);
+        }
+        hiddenSummary.value = `Cocaine Use Disorder Score: ${totalScore} | Severity: ${severityLevel} | Stimulant Profile: ${behavioralInsights}`;
+        
+        let hiddenDesc = document.getElementById("cocSeverityDesc");
+        if (!hiddenDesc) {
+            hiddenDesc = document.createElement("input");
+            hiddenDesc.type = "hidden";
+            hiddenDesc.name = "severity_description_cocaine";
+            hiddenDesc.id = "cocSeverityDesc";
+            cocForm.appendChild(hiddenDesc);
+        }
+        hiddenDesc.value = severityDescription;
+    }
+
+    async function submitCocaineToFormspree(formElement) {
+        const formData = new FormData(formElement);
+        const emailValue = document.getElementById("emailCoc").value.trim();
+        if (emailValue) {
+            formData.set("_replyto", emailValue);
+            document.getElementById("cocaineReplytoHidden").value = emailValue;
+        } else {
+            formData.set("_replyto", "noreply@copskc.org");
+        }
+        formData.set("submitted_at", new Date().toISOString());
+        formData.set("assessment_type", "Cocaine Use Disorder (Stimulant CUDIT-R + DSM-5)");
+        
+        try {
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Submitting Clinical Report...";
+            const response = await fetch(formElement.action, {
+                method: "POST",
+                body: formData,
+                headers: { 'Accept': 'application/json' }
+            });
+            if (response.ok) {
+                showToast("✅ Cocaine dependence assessment securely submitted. A COPS KC stimulant specialist will contact you within hours.", false);
+                submitBtn.innerText = "✓ Report Sent ✓";
+                submitBtn.disabled = true;
+                document.querySelectorAll("#cocaineClientForm input[type='text'], #cocaineClientForm input[type='email'], #cocaineClientForm input[type='tel']").forEach(inp => {
+                    if(inp.id !== "cocScoreResultField") inp.disabled = true;
+                });
+                const confirmMsg = document.createElement("p");
+                confirmMsg.className = "text-green-400 text-xs mt-3";
+                confirmMsg.innerText = "✓ Your cocaine use disorder assessment has been delivered to COPS KC. Immediate support available.";
+                document.querySelector("#infoFormSection .flex-wrap").after(confirmMsg);
+                return true;
+            } else {
+                showToast("Submission error. Please call 816-923-9212 for direct assistance.", true);
+                submitBtn.disabled = false;
+                submitBtn.innerText = "❄️ Send Cocaine Assessment to COPS KC";
+                return false;
+            }
+        } catch (err) {
+            console.error(err);
+            showToast("Network error. Contact COPS KC directly.", true);
+            submitBtn.disabled = false;
+            submitBtn.innerText = "❄️ Send Cocaine Assessment to COPS KC";
+            return false;
+        }
+    }
+
+    cocForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        if (userScores.some(s => s === null)) {
+            showToast("Please complete all 15 cocaine assessment items before submitting.", true);
+            return;
+        }
+        const name = document.getElementById("fullNameCoc").value.trim();
+        const phone = document.getElementById("phoneCoc").value.trim();
+        const email = document.getElementById("emailCoc").value.trim();
+        const city = document.getElementById("cityCoc").value.trim();
+        const country = document.getElementById("countryCoc").value.trim();
+        if (!name || !phone || !email || !city || !country) {
+            showToast("All fields required: Name, Phone, Email, City, Country.", true);
+            return;
+        }
+        if (!email.includes("@") || phone.length < 6) {
+            showToast("Valid email and phone number required.", true);
+            return;
+        }
+        let summaryField = document.getElementById("cocHiddenSummary");
+        if (summaryField) summaryField.value = `Cocaine Dependence Score: ${totalScore} | Severity: ${severityLevel} | Insights: ${behavioralInsights}`;
+        await submitCocaineToFormspree(cocForm);
+    });
+    
+    renderCocaineQuestions();
+</script>
+</body>
+</html>

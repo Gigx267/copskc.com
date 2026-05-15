@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>COPS KC | Compulsive Pornography Use & CSBD Assessment (Clinical Protocol)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0F0B1A;
+            background-image: radial-gradient(circle at 10% 20%, rgba(168, 85, 247, 0.08) 0%, #0F0B1A 95%);
+            color: #F3E8FF;
+        }
+        .question-card {
+            background: rgba(25, 20, 40, 0.85);
+            backdrop-filter: blur(3px);
+            border: 1px solid rgba(168, 85, 247, 0.45);
+            border-radius: 1.25rem;
+            transition: all 0.2s;
+        }
+        .btn-porn {
+            background: linear-gradient(95deg, #A855F7, #7E22CE);
+            transition: 0.2s;
+        }
+        .btn-porn:hover { background: linear-gradient(95deg, #C084FC, #A855F7); transform: translateY(-1px); box-shadow: 0 8px 20px rgba(168,85,247,0.4); }
+        .severity-badge { font-family: 'JetBrains Mono', monospace; padding: 0.25rem 1rem; border-radius: 40px; font-weight: 600; }
+        .clinical-badge { background: #2D1B3E; border-radius: 40px; padding: 0.2rem 0.8rem; font-size: 0.7rem; font-weight: 500; letter-spacing: 0.3px; }
+        input, select { background: #14122A; border: 1px solid #4A2F6E; border-radius: 0.75rem; padding: 0.7rem 1rem; color: white; outline: none; transition: 0.2s; }
+        input:focus, select:focus { border-color: #C084FC; ring: 2px solid #A855F7; }
+        label { font-size: 0.75rem; font-weight: 500; color: #D8B4FE; margin-bottom: 0.25rem; display: block; letter-spacing: 0.3px; }
+        .option-row { background: rgba(58, 40, 78, 0.5); border-radius: 0.75rem; padding: 0.7rem 1rem; cursor: pointer; transition: 0.15s; border: 1px solid transparent; }
+        .option-row.selected { background: #5B21B6; border-color: #A855F7; box-shadow: 0 0 0 1px #C084FC; }
+        .option-row:hover { background: #4C2D7A; }
+        .toast-message {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 1000;
+            background: #1E1A2F;
+            border-left: 4px solid #A855F7;
+            padding: 12px 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.6);
+            font-size: 0.85rem;
+            font-weight: 500;
+            backdrop-filter: blur(8px);
+        }
+        .toast-success { border-left-color: #A855F7; }
+        .toast-error { border-left-color: #EF4444; }
+        .insight-badge { background: #261F3A; border-radius: 20px; padding: 0.3rem 0.8rem; font-size: 0.7rem; font-family: monospace; }
+        hr.divider-glow { border-color: rgba(168, 85, 247, 0.25); }
+    </style>
+</head>
+<body class="py-8 px-4">
+
+<div class="max-w-3xl mx-auto relative z-10">
+    <!-- Header with COPS KC + Porn/Sexual Compulsivity specific -->
+    <div class="mb-8 text-center md:text-left">
+        <div class="flex justify-between items-center flex-wrap gap-3 border-b border-purple-900/50 pb-5 mb-6">
+            <div>
+                <div class="flex items-center gap-2 mb-2 justify-center md:justify-start">
+                    <span class="text-purple-300 text-2xl">🔞</span>
+                    <span class="text-[10px] font-mono tracking-[0.2em] text-slate-400">COPS KC · COMPULSIVE SEXUAL BEHAVIOR & PORNOGRAPHY DISORDER</span>
+                </div>
+                <h1 class="text-3xl md:text-4xl font-bold text-white">Compulsive Pornography Use<br><span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-300 to-pink-400">Advanced CSBD & Behavioral Addiction Assessment</span></h1>
+                <p class="text-slate-300 text-sm max-w-xl mt-2">Extended clinical assessment for problematic pornography use (CSBD-ICD-11 criteria) covering frequency, tolerance/escalation, withdrawal-like symptoms, failed control attempts, relationship damage, shame, and functional impairment. Identify severity and receive specialized recovery guidance.</p>
+            </div>
+            <div class="bg-black/40 rounded-2xl px-4 py-2 text-center border border-purple-800/50">
+                <div class="text-[10px] font-mono text-purple-300">COPS KC - Recovery & Restoration</div>
+                <div class="text-sm font-bold text-amber-200">📞 816-923-9212 · Confidential Support</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Questionnaire container (16 items: frequency, time spent, tolerance/escalation, withdrawal, cravings, failed control, shame, relationship damage, etc) -->
+    <div id="pornQuizContainer" class="space-y-5 mb-8"></div>
+
+    <!-- Result Section + detailed behavioral insights (hidden until complete) -->
+    <div id="resultSection" class="hidden question-card p-6 mb-8 transition-all"></div>
+
+    <!-- Client information + Formspree for pornography assessment submission -->
+    <div id="infoFormSection" class="hidden question-card p-6 mb-8 border-t-4 border-purple-500/60">
+        <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">📋 Submit Pornography Use Disorder Assessment Report</h3>
+        <p class="text-slate-300 text-sm mb-5">Strictly confidential clinical summary. Your name, contact details, and full CSBD Severity Index will be securely transmitted to COPS KC clinical team via Formspree. We provide faith-based & evidence-based recovery for compulsive sexual behavior, betrayal trauma counseling, and behavioral therapy.</p>
+        
+        <!-- Active Formspree endpoint for pornography-specific submissions -->
+        <form id="pornClientForm" action="https://formspree.io/f/mgvqegpa" method="POST">
+            <input type="hidden" name="_subject" value="NEW Compulsive Pornography Use Assessment - COPS KC">
+            <input type="hidden" name="_replyto" id="pornReplytoHidden" value="">
+            <input type="hidden" name="_ajax" value="true">
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+                <div>
+                    <label>Full Name *</label>
+                    <input type="text" name="Name" required id="fullNamePorn" placeholder="e.g., Alex Thompson" class="w-full">
+                </div>
+                <div>
+                    <label>Phone Number *</label>
+                    <input type="tel" name="Phone" required id="phonePorn" placeholder="+1 816-923-9212" class="w-full">
+                </div>
+                <div>
+                    <label>Email Address *</label>
+                    <input type="email" name="Email" required id="emailPorn" placeholder="client@example.com" class="w-full">
+                </div>
+                <div>
+                    <label>City *</label>
+                    <input type="text" name="City" required id="cityPorn" placeholder="Kansas City" class="w-full">
+                </div>
+                <div class="md:col-span-2">
+                    <label>Country *</label>
+                    <input type="text" name="Country" required id="countryPorn" placeholder="United States" class="w-full">
+                </div>
+                <div class="md:col-span-2">
+                    <label>CSBD Severity Index (Auto-filled - Full clinical summary)</label>
+                    <input type="text" name="Pornography_Score_Result" id="pornScoreResultField" readonly class="w-full bg-slate-800/60 text-purple-300 font-mono" value="Awaiting completion">
+                </div>
+            </div>
+            <div class="flex flex-wrap gap-4 items-center justify-between">
+                <button type="submit" id="submitPornReportBtn" class="btn-porn text-white font-bold py-3 px-6 rounded-xl text-sm uppercase tracking-wide disabled:opacity-50 transition-all">🔞 Send Assessment to COPS KC</button>
+                <span class="text-[11px] font-mono text-slate-400">🔒 Confidential · Freedom & accountability support</span>
+            </div>
+            <p class="text-xs text-slate-500 mt-4">* By submitting, you agree to receive guidance from COPS KC regarding problematic pornography use, recovery strategies, and personalized support.</p>
+        </form>
+    </div>
+
+    <footer class="text-center text-slate-500 text-xs pt-8 border-t border-purple-900/30 mt-6">
+        <p>📞 COPS KC Helpline: <span class="font-mono text-purple-300">816-923-9212</span> | 3800 Agnes Ave Ste.2, Kansas City, MO | Faith-Based & Evidence-Based Recovery</p>
+        <p class="mt-2">© Counselors Obediently Preventing Substance Abuse — Specialized CSBD Assessment & Behavioral Addiction Programs</p>
+    </footer>
+</div>
+
+<script>
+    // ============================================================
+    // ADVANCED COMPULSIVE PORNOGRAPHY USE / CSBD ASSESSMENT (ICD-11 + DSM-5-TR criteria)
+    // Domains: Frequency, Time spent, Escalation/Tolerance (need for more extreme content),
+    // Withdrawal-like symptoms (irritability/anxiety when unable to view),
+    // Cravings/Urges, Failed control attempts, Neglect of responsibilities,
+    // Relationship damage, Shame/guilt, Escaping negative emotions, Financial consequences,
+    // Work/school impairment, Deception, Continued use despite harm, Distress level.
+    // Score range 0-64 (severe CSBD). Each item 0-4.
+    // ============================================================
+    const pornQuestions = [
+        { text: "How often do you view pornography (videos, images, erotica, live streams, written content) on any device?", 
+          options: ["Never or less than monthly (0)", "1-3 days per month (1)", "1-3 days per week (2)", "4-6 days per week (3)", "Daily or multiple times daily (4)"], values: [0,1,2,3,4] },
+        { text: "On a typical day of use, how much time do you spend viewing pornography (including searching, watching, browsing)?", 
+          options: ["<15 minutes (0)", "15-30 minutes (1)", "30-60 minutes (2)", "1-2 hours (3)", ">2 hours (4)"], values: [0,1,2,3,4] },
+        { text: "Have you needed to view more extreme, novel, or intense pornography to achieve the same level of arousal or satisfaction (tolerance/escalation)?", 
+          options: ["Never (0)", "Rarely (1)", "Sometimes (2)", "Often (3)", "Almost always / regularly escalating (4)"], values: [0,1,2,3,4] },
+        { text: "How often do you experience restlessness, irritability, anxiety, or difficulty concentrating when you try to stop or reduce pornography use (withdrawal-like symptoms)?", 
+          options: ["Never (0)", "Rarely (1)", "Sometimes (2)", "Often (3)", "Almost always (4)"], values: [0,1,2,3,4] },
+        { text: "How intense are your cravings or urges to view pornography when you are not using (e.g., sudden overwhelming desire)?", 
+          options: ["No cravings (0)", "Mild / easily ignored (1)", "Moderate / distracting (2)", "Severe / hard to resist (3)", "Extreme / compulsive urge (4)"], values: [0,1,2,3,4] },
+        { text: "How often have you tried to cut down or stop viewing pornography and found you were unable to do so (failed control attempts)?", 
+          options: ["Never tried or always successful (0)", "Tried but failed occasionally (1)", "Failed multiple times (2)", "Often unable to stop (3)", "Consistently unable to control (4)"], values: [0,1,2,3,4] },
+        { text: "How often does pornography use cause you to neglect important responsibilities (work, school, household duties, sleep, hygiene)?", 
+          options: ["Never (0)", "Rarely (1)", "Sometimes (2)", "Often (3)", "Very often / severe neglect (4)"], values: [0,1,2,3,4] },
+        { text: "Has your pornography use damaged a significant relationship (partner, family, marriage) or led to conflict, secrecy, or breakup?", 
+          options: ["Never (0)", "Minor strain (1)", "Moderate strain / arguments (2)", "Serious damage / separation (3)", "Complete breakdown / divorce (4)"], values: [0,1,2,3,4] },
+        { text: "How often do you feel shame, guilt, self-loathing, or depression immediately after viewing pornography?", 
+          options: ["Never (0)", "Rarely (1)", "Sometimes (2)", "Often (3)", "Almost always / intense shame (4)"], values: [0,1,2,3,4] },
+        { text: "Do you use pornography to escape from negative emotions (stress, loneliness, boredom, anxiety, depression)?", 
+          options: ["Never (0)", "Rarely (1)", "Sometimes (2)", "Often (3)", "Almost always / primary coping mechanism (4)"], values: [0,1,2,3,4] },
+        { text: "Have you spent significant money on pornography (subscriptions, pay-per-view, cam sites, onlyfans) leading to financial problems?", 
+          options: ["Never (0)", "<$50 total (1)", "$50-$200 total (2)", "$200-$1000 total (3)", ">$1000 or ongoing financial strain (4)"], values: [0,1,2,3,4] },
+        { text: "Has pornography use affected your job or academic performance (viewing at work, lateness, reduced productivity, disciplinary action)?", 
+          options: ["Never (0)", "Minor impact (1)", "Moderate impact (2)", "Severe impact / warning (3)", "Job loss / expulsion (4)"], values: [0,1,2,3,4] },
+        { text: "How often do you lie to others (partner, friends, therapist) about the frequency or intensity of your pornography use?", 
+          options: ["Never (0)", "Rarely (1)", "Sometimes (2)", "Often (3)", "Almost always / chronic deception (4)"], values: [0,1,2,3,4] },
+        { text: "Do you continue viewing pornography despite knowing it causes negative consequences (erectile dysfunction, delayed ejaculation, objectification, relationship harm, moral distress)?", 
+          options: ["Never (0)", "Rarely (1)", "Sometimes (2)", "Often (3)", "Almost always (4)"], values: [0,1,2,3,4] },
+        { text: "How often do you view pornography in inappropriate settings (work, public places, while driving, during social gatherings) or take risks to view?", 
+          options: ["Never (0)", "Rarely (1)", "Sometimes (2)", "Often (3)", "Very often / high-risk behavior (4)"], values: [0,1,2,3,4] },
+        { text: "How much distress or impairment do you experience because of your pornography use (anxiety, depression, suicidal thoughts, loss of self-esteem)?", 
+          options: ["None (0)", "Mild / occasional (1)", "Moderate / weekly (2)", "Severe / daily distress (3)", "Extreme / suicidal ideation (4)"], values: [0,1,2,3,4] }
+    ];
+
+    let userScores = new Array(pornQuestions.length).fill(null);
+    let totalScore = 0;
+    let severityLevel = "";
+    let severityDescription = "";
+    let behavioralInsights = "";
+
+    const quizContainer = document.getElementById("pornQuizContainer");
+    const resultSection = document.getElementById("resultSection");
+    const infoFormSection = document.getElementById("infoFormSection");
+    const pornScoreField = document.getElementById("pornScoreResultField");
+    const pornForm = document.getElementById("pornClientForm");
+    const submitBtn = document.getElementById("submitPornReportBtn");
+
+    function showToast(message, isError = false) {
+        const existing = document.querySelector('.toast-message');
+        if(existing) existing.remove();
+        const toastDiv = document.createElement('div');
+        toastDiv.className = `toast-message ${isError ? 'toast-error' : 'toast-success'}`;
+        toastDiv.innerHTML = `<span>${isError ? '⚠️ ' : '✓ '}${message}</span>`;
+        document.body.appendChild(toastDiv);
+        setTimeout(() => toastDiv.remove(), 4800);
+    }
+
+    function renderPornQuestions() {
+        quizContainer.innerHTML = "";
+        pornQuestions.forEach((q, idx) => {
+            const selectedVal = userScores[idx];
+            const card = document.createElement("div");
+            card.className = "question-card p-5";
+            card.innerHTML = `
+                <div class="flex justify-between items-start mb-3 flex-wrap gap-2">
+                    <h3 class="font-bold text-white text-md">${idx+1}. ${q.text}</h3>
+                    <span class="clinical-badge text-xs text-purple-200">score: ${selectedVal !== null ? selectedVal : "—"}</span>
+                </div>
+                <div class="space-y-2" id="porn-options-${idx}"></div>
+            `;
+            quizContainer.appendChild(card);
+            const optionsDiv = card.querySelector(`#porn-options-${idx}`);
+            q.options.forEach((opt, optIdx) => {
+                const optValue = q.values[optIdx];
+                const optionDiv = document.createElement("div");
+                optionDiv.className = `option-row text-sm text-slate-200 flex justify-between items-center ${selectedVal === optValue ? 'selected' : ''}`;
+                optionDiv.innerHTML = `<span>${opt}</span><span class="text-xs font-mono text-purple-300">${optValue} pts</span>`;
+                optionDiv.addEventListener("click", () => {
+                    userScores[idx] = optValue;
+                    renderPornQuestions();
+                    computeTotalAndResult();
+                });
+                optionsDiv.appendChild(optionDiv);
+            });
+        });
+    }
+
+    function generatePornBehavioralInsights(score, answersArray) {
+        const freq = answersArray[0] || 0;
+        const escalation = answersArray[2] || 0;
+        const withdrawal = answersArray[3] || 0;
+        const craving = answersArray[4] || 0;
+        const controlFail = answersArray[5] || 0;
+        const relationship = answersArray[7] || 0;
+        const shame = answersArray[8] || 0;
+        const escape = answersArray[9] || 0;
+        const workImpact = answersArray[11] || 0;
+        const distress = answersArray[15] || 0;
+        let insights = [];
+        if (freq >= 3) insights.push("🔞 Frequent (near-daily) pornography use — high behavioral addiction risk.");
+        if (escalation >= 3) insights.push("📈 Tolerance/escalation to more extreme content — hallmark of compulsive sexual behavior disorder.");
+        if (withdrawal >= 3) insights.push("⚠️ Withdrawal-like irritability/anxiety when stopping — psychological dependence.");
+        if (craving >= 3) insights.push("🧠 Intense cravings — drives compulsive viewing and relapse.");
+        if (controlFail >= 3) insights.push("🔄 Repeated failed attempts to stop — loss of behavioral control.");
+        if (relationship >= 3) insights.push("💔 Significant relationship damage or secrecy — major interpersonal consequences.");
+        if (shame >= 3) insights.push("😞 Intense shame and guilt — shame-spiral reinforcing cycle.");
+        if (escape >= 3) insights.push("🎭 Using pornography to escape negative emotions — maladaptive coping mechanism.");
+        if (workImpact >= 3) insights.push("💼 Work/school impairment due to use — functional decline requiring intervention.");
+        if (distress >= 3) insights.push("⚠️ Severe psychological distress — consider co-occurring depression/anxiety.");
+        if (insights.length === 0) insights.push("⚡ Low-risk pattern. Maintain awareness of potential for escalation.");
+        return insights.join(" · ");
+    }
+
+    function computeTotalAndResult() {
+        const allAnswered = userScores.every(s => s !== null);
+        if (!allAnswered) {
+            resultSection.classList.add("hidden");
+            infoFormSection.classList.add("hidden");
+            return;
+        }
+        totalScore = userScores.reduce((a,b) => a + b, 0);
+        const maxPossible = pornQuestions.length * 4;
+        
+        // Clinical severity thresholds for CSBD / Compulsive Pornography Use
+        if (totalScore <= 12) {
+            severityLevel = "Low Risk / Occasional Use";
+            severityDescription = "Occasional or infrequent use without significant distress or impairment. No signs of compulsivity. Maintain healthy boundaries and monitor for any escalation. COPS KC offers preventive education.";
+        } else if (totalScore <= 28) {
+            severityLevel = "Mild to Moderate Risk / Problematic Use";
+            severityDescription = "Noticeable pattern with emerging loss of control, some shame, and mild consequences. Early intervention, accountability software, and cognitive-behavioral strategies can prevent progression to disorder.";
+        } else if (totalScore <= 44) {
+            severityLevel = "Moderate-Severe CSBD (Compulsive Sexual Behavior Disorder)";
+            severityDescription = "Clear loss of control, escalation, withdrawal-like symptoms, relationship damage, and functional impairment. Professional counseling (CSBD-specific CBT), support groups (SAA), and structured recovery plan strongly advised. Contact COPS KC for specialized care.";
+        } else {
+            severityLevel = "Severe Compulsive Sexual Behavior Disorder / Addiction";
+            severityDescription = "Daily or near-daily compulsive use, significant escalation, failed multiple quit attempts, major relationship breakdown, financial/job consequences, and severe psychological distress. Requires intensive outpatient or residential treatment, betrayal trauma counseling for partners, and long-term recovery support. Call 816-923-9212 for immediate clinical coordination.";
+        }
+        
+        behavioralInsights = generatePornBehavioralInsights(totalScore, userScores);
+        
+        resultSection.classList.remove("hidden");
+        let severityColorClass = totalScore <= 12 ? "text-emerald-300 bg-emerald-950/30 border-emerald-500/40" :
+                                   (totalScore <= 28 ? "text-yellow-300 bg-yellow-950/30 border-yellow-500/40" :
+                                   (totalScore <= 44 ? "text-orange-300 bg-orange-950/30 border-orange-500/40" : "text-rose-300 bg-rose-950/30 border-rose-500/40"));
+        
+        resultSection.innerHTML = `
+            <div class="flex flex-col gap-4">
+                <div class="flex justify-between items-center flex-wrap gap-2">
+                    <h2 class="text-2xl font-bold text-white">CSBD Severity Index: <span class="text-purple-300">${totalScore}</span> / ${maxPossible}</h2>
+                    <span class="severity-badge ${severityColorClass} border">${severityLevel}</span>
+                </div>
+                <div class="bg-black/30 p-4 rounded-xl">
+                    <p class="text-slate-200 leading-relaxed">${severityDescription}</p>
+                    <div class="mt-4 bg-fuchsia-950/30 p-3 rounded-lg border-l-4 border-purple-400">
+                        <p class="text-xs font-mono uppercase tracking-wide text-purple-300 mb-1">🧠 COMPULSIVE SEXUAL BEHAVIOR INSIGHTS</p>
+                        <p class="text-sm text-slate-200">${behavioralInsights}</p>
+                    </div>
+                    <div class="mt-4 flex flex-wrap gap-2 text-[11px] font-mono">
+                        <span class="insight-badge">🔞 0-12: Low risk</span>
+                        <span class="insight-badge">⚠️ 13-28: Moderate risk</span>
+                        <span class="insight-badge">🔶 29-44: Moderate-Severe CSBD</span>
+                        <span class="insight-badge">🔴 45-64: Severe CSBD</span>
+                    </div>
+                </div>
+                <div class="border-t border-purple-800/40 pt-3 mt-2 text-sm text-amber-200 flex flex-wrap justify-between items-center">
+                    <span>✝️ Faith-based & clinical recovery · Betrayal trauma & behavioral therapy</span>
+                    <a href="tel:+18169239212" class="underline text-purple-300 text-xs">Call COPS KC: 816-923-9212</a>
+                </div>
+            </div>
+        `;
+        
+        infoFormSection.classList.remove("hidden");
+        if (pornScoreField) {
+            pornScoreField.value = `CSBD Index: ${totalScore} (${severityLevel}) | Pattern: ${behavioralInsights.substring(0, 100)}`;
+        }
+        
+        let hiddenSummary = document.getElementById("pornHiddenSummary");
+        if (!hiddenSummary) {
+            hiddenSummary = document.createElement("input");
+            hiddenSummary.type = "hidden";
+            hiddenSummary.name = "csbd_clinical_summary";
+            hiddenSummary.id = "pornHiddenSummary";
+            pornForm.appendChild(hiddenSummary);
+        }
+        hiddenSummary.value = `CSBD Score: ${totalScore} | Severity: ${severityLevel} | Behavioral Profile: ${behavioralInsights}`;
+        
+        let hiddenDesc = document.getElementById("pornSeverityDesc");
+        if (!hiddenDesc) {
+            hiddenDesc = document.createElement("input");
+            hiddenDesc.type = "hidden";
+            hiddenDesc.name = "severity_description_csbd";
+            hiddenDesc.id = "pornSeverityDesc";
+            pornForm.appendChild(hiddenDesc);
+        }
+        hiddenDesc.value = severityDescription;
+    }
+
+    async function submitPornToFormspree(formElement) {
+        const formData = new FormData(formElement);
+        const emailValue = document.getElementById("emailPorn").value.trim();
+        if (emailValue) {
+            formData.set("_replyto", emailValue);
+            document.getElementById("pornReplytoHidden").value = emailValue;
+        } else {
+            formData.set("_replyto", "noreply@copskc.org");
+        }
+        formData.set("submitted_at", new Date().toISOString());
+        formData.set("assessment_type", "Compulsive Pornography Use / CSBD (ICD-11 + Extended)");
+        
+        try {
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Submitting Clinical Report...";
+            const response = await fetch(formElement.action, {
+                method: "POST",
+                body: formData,
+                headers: { 'Accept': 'application/json' }
+            });
+            if (response.ok) {
+                showToast("✅ CSBD assessment securely submitted. A COPS KC specialist will contact you with confidential recovery options.", false);
+                submitBtn.innerText = "✓ Report Sent ✓";
+                submitBtn.disabled = true;
+                document.querySelectorAll("#pornClientForm input[type='text'], #pornClientForm input[type='email'], #pornClientForm input[type='tel']").forEach(inp => {
+                    if(inp.id !== "pornScoreResultField") inp.disabled = true;
+                });
+                const confirmMsg = document.createElement("p");
+                confirmMsg.className = "text-green-400 text-xs mt-3";
+                confirmMsg.innerText = "✓ Your CSBD assessment has been delivered to COPS KC. Freedom and recovery support available.";
+                document.querySelector("#infoFormSection .flex-wrap").after(confirmMsg);
+                return true;
+            } else {
+                showToast("Submission error. Please call 816-923-9212 for direct assistance.", true);
+                submitBtn.disabled = false;
+                submitBtn.innerText = "🔞 Send Assessment to COPS KC";
+                return false;
+            }
+        } catch (err) {
+            console.error(err);
+            showToast("Network error. Contact COPS KC directly.", true);
+            submitBtn.disabled = false;
+            submitBtn.innerText = "🔞 Send Assessment to COPS KC";
+            return false;
+        }
+    }
+
+    pornForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        if (userScores.some(s => s === null)) {
+            showToast("Please complete all 16 assessment items before submitting.", true);
+            return;
+        }
+        const name = document.getElementById("fullNamePorn").value.trim();
+        const phone = document.getElementById("phonePorn").value.trim();
+        const email = document.getElementById("emailPorn").value.trim();
+        const city = document.getElementById("cityPorn").value.trim();
+        const country = document.getElementById("countryPorn").value.trim();
+        if (!name || !phone || !email || !city || !country) {
+            showToast("All fields required: Name, Phone, Email, City, Country.", true);
+            return;
+        }
+        if (!email.includes("@") || phone.length < 6) {
+            showToast("Valid email and phone number required.", true);
+            return;
+        }
+        let summaryField = document.getElementById("pornHiddenSummary");
+        if (summaryField) summaryField.value = `CSBD Score: ${totalScore} | Severity: ${severityLevel} | Insights: ${behavioralInsights}`;
+        await submitPornToFormspree(pornForm);
+    });
+    
+    renderPornQuestions();
+</script>
+</body>
+</html>

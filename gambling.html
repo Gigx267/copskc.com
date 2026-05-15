@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>COPS KC | Gambling Disorder & Behavioral Addiction Assessment (PGSI + DSM-5 Extended)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0D0E15;
+            background-image: radial-gradient(circle at 10% 30%, rgba(212, 175, 55, 0.08) 0%, #0D0E15 95%);
+            color: #F3F4F6;
+        }
+        .question-card {
+            background: rgba(20, 22, 38, 0.85);
+            backdrop-filter: blur(3px);
+            border: 1px solid rgba(212, 175, 55, 0.45);
+            border-radius: 1.25rem;
+            transition: all 0.2s;
+        }
+        .btn-gambling {
+            background: linear-gradient(95deg, #D4AF37, #B8942E);
+            transition: 0.2s;
+        }
+        .btn-gambling:hover { background: linear-gradient(95deg, #E6C84A, #D4AF37); transform: translateY(-1px); box-shadow: 0 8px 20px rgba(212,175,55,0.4); }
+        .severity-badge { font-family: 'JetBrains Mono', monospace; padding: 0.25rem 1rem; border-radius: 40px; font-weight: 600; }
+        .clinical-badge { background: #262B3F; border-radius: 40px; padding: 0.2rem 0.8rem; font-size: 0.7rem; font-weight: 500; letter-spacing: 0.3px; }
+        input, select { background: #12152A; border: 1px solid #3A3E5A; border-radius: 0.75rem; padding: 0.7rem 1rem; color: white; outline: none; transition: 0.2s; }
+        input:focus, select:focus { border-color: #D4AF37; ring: 2px solid #D4AF37; }
+        label { font-size: 0.75rem; font-weight: 500; color: #FDE047; margin-bottom: 0.25rem; display: block; letter-spacing: 0.3px; }
+        .option-row { background: rgba(48, 44, 70, 0.5); border-radius: 0.75rem; padding: 0.7rem 1rem; cursor: pointer; transition: 0.15s; border: 1px solid transparent; }
+        .option-row.selected { background: #5C4A1E; border-color: #D4AF37; box-shadow: 0 0 0 1px #FDE047; }
+        .option-row:hover { background: #4A3E2A; }
+        .toast-message {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 1000;
+            background: #1E2035;
+            border-left: 4px solid #D4AF37;
+            padding: 12px 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.6);
+            font-size: 0.85rem;
+            font-weight: 500;
+            backdrop-filter: blur(8px);
+        }
+        .toast-success { border-left-color: #D4AF37; }
+        .toast-error { border-left-color: #EF4444; }
+        .insight-badge { background: #23273F; border-radius: 20px; padding: 0.3rem 0.8rem; font-size: 0.7rem; font-family: monospace; }
+        hr.divider-glow { border-color: rgba(212, 175, 55, 0.25); }
+    </style>
+</head>
+<body class="py-8 px-4">
+
+<div class="max-w-3xl mx-auto relative z-10">
+    <!-- Header with COPS KC + Gambling specific -->
+    <div class="mb-8 text-center md:text-left">
+        <div class="flex justify-between items-center flex-wrap gap-3 border-b border-yellow-900/50 pb-5 mb-6">
+            <div>
+                <div class="flex items-center gap-2 mb-2 justify-center md:justify-start">
+                    <span class="text-yellow-300 text-2xl">🎰</span>
+                    <span class="text-[10px] font-mono tracking-[0.2em] text-slate-400">COPS KC · BEHAVIORAL ADDICTION & GAMBLING DISORDER</span>
+                </div>
+                <h1 class="text-3xl md:text-4xl font-bold text-white">Gambling Disorder<br><span class="text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-amber-400">Advanced Compulsive Gambling Assessment (PGSI + DSM-5)</span></h1>
+                <p class="text-slate-300 text-sm max-w-xl mt-2">Extended clinical gambling assessment covering frequency, chasing losses, tolerance, withdrawal-like irritability, lying, bailouts, financial collapse, and psychosocial impact. Identify risk level and receive specialized recovery guidance.</p>
+            </div>
+            <div class="bg-black/40 rounded-2xl px-4 py-2 text-center border border-yellow-800/50">
+                <div class="text-[10px] font-mono text-yellow-300">COPS KC - Problem Gambling Help</div>
+                <div class="text-sm font-bold text-amber-200">📞 816-923-9212 · 24/7 Crisis & Recovery</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Questionnaire container (16 items: frequency, time/money spent, chasing losses, tolerance, withdrawal, lying, bailouts, illegal acts, etc) -->
+    <div id="gamblingQuizContainer" class="space-y-5 mb-8"></div>
+
+    <!-- Result Section + detailed behavioral insights (hidden until complete) -->
+    <div id="resultSection" class="hidden question-card p-6 mb-8 transition-all"></div>
+
+    <!-- Client information + Formspree for gambling assessment submission -->
+    <div id="infoFormSection" class="hidden question-card p-6 mb-8 border-t-4 border-yellow-500/60">
+        <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">📋 Submit Gambling Disorder Assessment Report</h3>
+        <p class="text-slate-300 text-sm mb-5">Confidential clinical summary. Your name, contact details, and full Gambling Severity Index will be securely transmitted to COPS KC clinical team via Formspree. We provide faith-based & evidence-based recovery for gambling addiction, financial counseling, and behavioral therapy.</p>
+        
+        <!-- Active Formspree endpoint for gambling-specific submissions -->
+        <form id="gamblingClientForm" action="https://formspree.io/f/mgvqegpa" method="POST">
+            <input type="hidden" name="_subject" value="NEW Gambling Disorder Assessment - COPS KC">
+            <input type="hidden" name="_replyto" id="gamblingReplytoHidden" value="">
+            <input type="hidden" name="_ajax" value="true">
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+                <div>
+                    <label>Full Name *</label>
+                    <input type="text" name="Name" required id="fullNameGam" placeholder="e.g., David Chen" class="w-full">
+                </div>
+                <div>
+                    <label>Phone Number *</label>
+                    <input type="tel" name="Phone" required id="phoneGam" placeholder="+1 816-923-9212" class="w-full">
+                </div>
+                <div>
+                    <label>Email Address *</label>
+                    <input type="email" name="Email" required id="emailGam" placeholder="client@example.com" class="w-full">
+                </div>
+                <div>
+                    <label>City *</label>
+                    <input type="text" name="City" required id="cityGam" placeholder="Kansas City" class="w-full">
+                </div>
+                <div class="md:col-span-2">
+                    <label>Country *</label>
+                    <input type="text" name="Country" required id="countryGam" placeholder="United States" class="w-full">
+                </div>
+                <div class="md:col-span-2">
+                    <label>Gambling Severity Index (Auto-filled - Full clinical summary)</label>
+                    <input type="text" name="Gambling_Score_Result" id="gamScoreResultField" readonly class="w-full bg-slate-800/60 text-yellow-300 font-mono" value="Awaiting completion">
+                </div>
+            </div>
+            <div class="flex flex-wrap gap-4 items-center justify-between">
+                <button type="submit" id="submitGamblingReportBtn" class="btn-gambling text-black font-bold py-3 px-6 rounded-xl text-sm uppercase tracking-wide disabled:opacity-50 transition-all">🎲 Send Gambling Assessment to COPS KC</button>
+                <span class="text-[11px] font-mono text-slate-400">🔒 Confidential · Financial recovery & counseling</span>
+            </div>
+            <p class="text-xs text-slate-500 mt-4">* By submitting, you agree to receive guidance from COPS KC regarding gambling cessation, financial management, and personalized recovery planning.</p>
+        </form>
+    </div>
+
+    <footer class="text-center text-slate-500 text-xs pt-8 border-t border-yellow-900/30 mt-6">
+        <p>📞 COPS KC Helpline: <span class="font-mono text-yellow-300">816-923-9212</span> | 3800 Agnes Ave Ste.2, Kansas City, MO | Faith-Based & Evidence-Based Recovery</p>
+        <p class="mt-2">© Counselors Obediently Preventing Substance Abuse — Specialized Gambling Disorder Assessment & Behavioral Addiction Programs</p>
+    </footer>
+</div>
+
+<script>
+    // ============================================================
+    // ADVANCED GAMBLING DISORDER ASSESSMENT (PGSI extended + DSM-5 criteria)
+    // Domains: Frequency, Time spent, Money spent, Chasing losses, Tolerance (need to bet more),
+    // Withdrawal-like symptoms (irritability when cutting down), Failed control attempts,
+    // Lying about gambling, Bailout/Borrowing, Illegal acts, Relationship breakdown,
+    // Financial ruin, Preoccupation, Escaping problems, Jeopardizing opportunities.
+    // Score range 0-64 (severe gambling disorder). Each item 0-4.
+    // ============================================================
+    const gamblingQuestions = [
+        { text: "How often do you gamble (casino, sports betting, online slots, poker, lottery, horse racing, etc.)?", 
+          options: ["Never or less than monthly (0)", "1-3 days per month (1)", "1-3 days per week (2)", "4-6 days per week (3)", "Daily or almost daily (4)"], values: [0,1,2,3,4] },
+        { text: "On a typical gambling day, how much time do you spend gambling (including online and in-person)?", 
+          options: ["<1 hour (0)", "1-2 hours (1)", "2-4 hours (2)", "4-8 hours (3)", ">8 hours (4)"], values: [0,1,2,3,4] },
+        { text: "What is the approximate amount of money you lose on a typical gambling day (net loss, not including wins)?", 
+          options: ["<$50 (0)", "$50-$200 (1)", "$200-$500 (2)", "$500-$1000 (3)", ">$1000 (4)"], values: [0,1,2,3,4] },
+        { text: "How often do you 'chase losses' — return another day to try to win back money you've lost?", 
+          options: ["Never (0)", "Rarely (1)", "Sometimes (2)", "Often (3)", "Almost always / every session (4)"], values: [0,1,2,3,4] },
+        { text: "Have you needed to bet larger amounts of money or gamble more frequently to achieve the desired excitement (tolerance)?", 
+          options: ["Never (0)", "Rarely (1)", "Sometimes (2)", "Often (3)", "Almost always (4)"], values: [0,1,2,3,4] },
+        { text: "How often do you feel restless, irritable, anxious, or agitated when trying to cut down or stop gambling (withdrawal-like symptoms)?", 
+          options: ["Never (0)", "Rarely (1)", "Sometimes (2)", "Often (3)", "Almost always (4)"], values: [0,1,2,3,4] },
+        { text: "How often have you tried to control, cut back, or stop gambling and found you were unable to do so?", 
+          options: ["Never tried or always succeeded (0)", "Tried but failed occasionally (1)", "Failed multiple times (2)", "Often unable to cut down (3)", "Consistently unable to control (4)"], values: [0,1,2,3,4] },
+        { text: "How often do you lie to family members, therapists, or others about the extent of your gambling (money lost, time spent, frequency)?", 
+          options: ["Never (0)", "Rarely (1)", "Sometimes (2)", "Often (3)", "Almost always (4)"], values: [0,1,2,3,4] },
+        { text: "Have you borrowed money, sold possessions, taken out high-interest loans, or relied on bailouts to finance gambling or pay gambling debts?", 
+          options: ["Never (0)", "Once (1)", "2-3 times (2)", "4-6 times (3)", "Frequently / desperate measures (4)"], values: [0,1,2,3,4] },
+        { text: "Have you committed illegal acts (fraud, theft, embezzlement) to fund gambling or cover losses?", 
+          options: ["Never (0)", "Unsure / minor (1)", "Once (2)", "Multiple times (3)", "Serious legal consequences (4)"], values: [0,1,2,3,4] },
+        { text: "Has gambling caused significant damage or ended a close relationship (partner, family, close friend)?", 
+          options: ["No (0)", "Minor strain (1)", "Moderate strain / arguments (2)", "Serious damage / separation (3)", "Complete breakdown / divorce (4)"], values: [0,1,2,3,4] },
+        { text: "Has gambling led to major financial disaster (bankruptcy, foreclosure, wage garnishment, inability to pay bills)?", 
+          options: ["No (0)", "Minor debt (1)", "Moderate debt (2)", "Severe financial crisis (3)", "Bankruptcy / homelessness (4)"], values: [0,1,2,3,4] },
+        { text: "How often do you find yourself preoccupied with gambling (reliving past gambling experiences, planning next session, thinking of ways to get money)?", 
+          options: ["Never (0)", "Rarely (1)", "Sometimes (2)", "Often (3)", "Almost constant (4)"], values: [0,1,2,3,4] },
+        { text: "Do you gamble to escape problems, relieve stress, or cope with negative moods (anxiety, depression, loneliness)?", 
+          options: ["Never (0)", "Rarely (1)", "Sometimes (2)", "Often (3)", "Almost always / primary coping mechanism (4)"], values: [0,1,2,3,4] },
+        { text: "Have you jeopardized or lost an important job, educational opportunity, or career advancement due to gambling (absenteeism, poor performance)?", 
+          options: ["Never (0)", "Minor impact (1)", "Moderate (2)", "Severe / job loss (3)", "Career destroyed / expulsion (4)"], values: [0,1,2,3,4] },
+        { text: "How much distress or impairment do you experience because of gambling (anxiety, depression, suicidal thoughts, hopelessness)?", 
+          options: ["None (0)", "Mild / occasional (1)", "Moderate / weekly (2)", "Severe / daily distress (3)", "Extreme / suicidal ideation (4)"], values: [0,1,2,3,4] }
+    ];
+
+    let userScores = new Array(gamblingQuestions.length).fill(null);
+    let totalScore = 0;
+    let severityLevel = "";
+    let severityDescription = "";
+    let behavioralInsights = "";
+
+    const quizContainer = document.getElementById("gamblingQuizContainer");
+    const resultSection = document.getElementById("resultSection");
+    const infoFormSection = document.getElementById("infoFormSection");
+    const gamScoreField = document.getElementById("gamScoreResultField");
+    const gamForm = document.getElementById("gamblingClientForm");
+    const submitBtn = document.getElementById("submitGamblingReportBtn");
+
+    function showToast(message, isError = false) {
+        const existing = document.querySelector('.toast-message');
+        if(existing) existing.remove();
+        const toastDiv = document.createElement('div');
+        toastDiv.className = `toast-message ${isError ? 'toast-error' : 'toast-success'}`;
+        toastDiv.innerHTML = `<span>${isError ? '⚠️ ' : '✓ '}${message}</span>`;
+        document.body.appendChild(toastDiv);
+        setTimeout(() => toastDiv.remove(), 4800);
+    }
+
+    function renderGamblingQuestions() {
+        quizContainer.innerHTML = "";
+        gamblingQuestions.forEach((q, idx) => {
+            const selectedVal = userScores[idx];
+            const card = document.createElement("div");
+            card.className = "question-card p-5";
+            card.innerHTML = `
+                <div class="flex justify-between items-start mb-3 flex-wrap gap-2">
+                    <h3 class="font-bold text-white text-md">${idx+1}. ${q.text}</h3>
+                    <span class="clinical-badge text-xs text-yellow-200">score: ${selectedVal !== null ? selectedVal : "—"}</span>
+                </div>
+                <div class="space-y-2" id="gam-options-${idx}"></div>
+            `;
+            quizContainer.appendChild(card);
+            const optionsDiv = card.querySelector(`#gam-options-${idx}`);
+            q.options.forEach((opt, optIdx) => {
+                const optValue = q.values[optIdx];
+                const optionDiv = document.createElement("div");
+                optionDiv.className = `option-row text-sm text-slate-200 flex justify-between items-center ${selectedVal === optValue ? 'selected' : ''}`;
+                optionDiv.innerHTML = `<span>${opt}</span><span class="text-xs font-mono text-yellow-300">${optValue} pts</span>`;
+                optionDiv.addEventListener("click", () => {
+                    userScores[idx] = optValue;
+                    renderGamblingQuestions();
+                    computeTotalAndResult();
+                });
+                optionsDiv.appendChild(optionDiv);
+            });
+        });
+    }
+
+    function generateGamblingBehavioralInsights(score, answersArray) {
+        const freq = answersArray[0] || 0;
+        const chase = answersArray[3] || 0;
+        const tolerance = answersArray[4] || 0;
+        const withdrawalIrritability = answersArray[5] || 0;
+        const controlFail = answersArray[6] || 0;
+        const lying = answersArray[7] || 0;
+        const bailout = answersArray[8] || 0;
+        const illegal = answersArray[9] || 0;
+        const relationship = answersArray[10] || 0;
+        const financial = answersArray[11] || 0;
+        let insights = [];
+        if (freq >= 3) insights.push("🎲 Frequent gambling (near-daily) — high behavioral addiction risk.");
+        if (chase >= 3) insights.push("💰 Compulsive chasing of losses — hallmark of pathological gambling.");
+        if (tolerance >= 3) insights.push("📈 Tolerance — need increasing bets for same excitement, sign of disorder progression.");
+        if (withdrawalIrritability >= 3) insights.push("⚠️ Withdrawal-like irritability when stopping — psychological dependence.");
+        if (controlFail >= 3) insights.push("🔄 Repeated failed attempts to stop — loss of behavioral control.");
+        if (lying >= 3) insights.push("🤥 Deception about gambling extent — shame cycle and secrecy.");
+        if (bailout >= 3) insights.push("🏦 Repeated financial bailouts or desperate borrowing — severe financial instability.");
+        if (illegal >= 2) insights.push("⚖️ Illegal acts to fund gambling — high-risk legal consequences.");
+        if (relationship >= 3) insights.push("💔 Relationship destruction due to gambling — major interpersonal damage.");
+        if (financial >= 3) insights.push("📉 Financial catastrophe (bankruptcy/debt) — critical intervention needed.");
+        if (answersArray[14] >= 3) insights.push("💼 Job/education loss — functional collapse requiring intensive support.");
+        if (insights.length === 0) insights.push("⚡ Low-risk pattern but gambling carries addiction potential. Preventive education recommended.");
+        return insights.join(" · ");
+    }
+
+    function computeTotalAndResult() {
+        const allAnswered = userScores.every(s => s !== null);
+        if (!allAnswered) {
+            resultSection.classList.add("hidden");
+            infoFormSection.classList.add("hidden");
+            return;
+        }
+        totalScore = userScores.reduce((a,b) => a + b, 0);
+        const maxPossible = gamblingQuestions.length * 4;
+        
+        // Clinical severity thresholds for Gambling Disorder (DSM-5 + PGSI extended)
+        if (totalScore <= 12) {
+            severityLevel = "Low Risk / Recreational Gambling";
+            severityDescription = "Occasional gambling with minimal consequences. No signs of impaired control or harm. Maintain healthy limits. COPS KC offers preventive education and financial wellness resources.";
+        } else if (totalScore <= 28) {
+            severityLevel = "Moderate Risk / Problem Gambling";
+            severityDescription = "Emerging chasing behavior, some loss of control, and minor financial/relationship strain. Early intervention and self-exclusion programs recommended. Cognitive-behavioral therapy can prevent progression to disorder.";
+        } else if (totalScore <= 44) {
+            severityLevel = "Moderate-Severe Gambling Disorder (DSM-5 Moderate)";
+            severityDescription = "Clear loss of control, chasing losses, tolerance, and significant financial/relationship consequences. Professional gambling-specific counseling, financial management, and support groups (Gamblers Anonymous) strongly advised. Contact COPS KC for specialized care.";
+        } else {
+            severityLevel = "Severe Gambling Disorder (DSM-5 Severe)";
+            severityDescription = "Compulsive gambling with major financial ruin, relationship collapse, illegal acts, and severe psychological distress. Suicidal ideation risk elevated. Requires intensive outpatient or residential treatment, legal/financial counseling, and relapse prevention. Call 816-923-9212 for immediate crisis intervention.";
+        }
+        
+        behavioralInsights = generateGamblingBehavioralInsights(totalScore, userScores);
+        
+        resultSection.classList.remove("hidden");
+        let severityColorClass = totalScore <= 12 ? "text-emerald-300 bg-emerald-950/30 border-emerald-500/40" :
+                                   (totalScore <= 28 ? "text-yellow-300 bg-yellow-950/30 border-yellow-500/40" :
+                                   (totalScore <= 44 ? "text-orange-300 bg-orange-950/30 border-orange-500/40" : "text-rose-300 bg-rose-950/30 border-rose-500/40"));
+        
+        resultSection.innerHTML = `
+            <div class="flex flex-col gap-4">
+                <div class="flex justify-between items-center flex-wrap gap-2">
+                    <h2 class="text-2xl font-bold text-white">Gambling Severity Index: <span class="text-yellow-300">${totalScore}</span> / ${maxPossible}</h2>
+                    <span class="severity-badge ${severityColorClass} border">${severityLevel}</span>
+                </div>
+                <div class="bg-black/30 p-4 rounded-xl">
+                    <p class="text-slate-200 leading-relaxed">${severityDescription}</p>
+                    <div class="mt-4 bg-amber-950/30 p-3 rounded-lg border-l-4 border-yellow-400">
+                        <p class="text-xs font-mono uppercase tracking-wide text-yellow-300 mb-1">🧠 GAMBLING DISORDER INSIGHTS</p>
+                        <p class="text-sm text-slate-200">${behavioralInsights}</p>
+                    </div>
+                    <div class="mt-4 flex flex-wrap gap-2 text-[11px] font-mono">
+                        <span class="insight-badge">🎲 0-12: Low risk</span>
+                        <span class="insight-badge">⚠️ 13-28: Moderate risk</span>
+                        <span class="insight-badge">🔶 29-44: Moderate-Severe</span>
+                        <span class="insight-badge">🔴 45-64: Severe disorder</span>
+                    </div>
+                </div>
+                <div class="border-t border-yellow-800/40 pt-3 mt-2 text-sm text-amber-200 flex flex-wrap justify-between items-center">
+                    <span>✝️ Faith-based & clinical gambling recovery · Financial counseling & CBT</span>
+                    <a href="tel:+18169239212" class="underline text-yellow-300 text-xs">Call COPS KC: 816-923-9212</a>
+                </div>
+            </div>
+        `;
+        
+        infoFormSection.classList.remove("hidden");
+        if (gamScoreField) {
+            gamScoreField.value = `Gambling Index: ${totalScore} (${severityLevel}) | Pattern: ${behavioralInsights.substring(0, 100)}`;
+        }
+        
+        let hiddenSummary = document.getElementById("gamHiddenSummary");
+        if (!hiddenSummary) {
+            hiddenSummary = document.createElement("input");
+            hiddenSummary.type = "hidden";
+            hiddenSummary.name = "gambling_clinical_summary";
+            hiddenSummary.id = "gamHiddenSummary";
+            gamForm.appendChild(hiddenSummary);
+        }
+        hiddenSummary.value = `Gambling Disorder Score: ${totalScore} | Severity: ${severityLevel} | Behavioral Profile: ${behavioralInsights}`;
+        
+        let hiddenDesc = document.getElementById("gamSeverityDesc");
+        if (!hiddenDesc) {
+            hiddenDesc = document.createElement("input");
+            hiddenDesc.type = "hidden";
+            hiddenDesc.name = "severity_description_gambling";
+            hiddenDesc.id = "gamSeverityDesc";
+            gamForm.appendChild(hiddenDesc);
+        }
+        hiddenDesc.value = severityDescription;
+    }
+
+    async function submitGamblingToFormspree(formElement) {
+        const formData = new FormData(formElement);
+        const emailValue = document.getElementById("emailGam").value.trim();
+        if (emailValue) {
+            formData.set("_replyto", emailValue);
+            document.getElementById("gamblingReplytoHidden").value = emailValue;
+        } else {
+            formData.set("_replyto", "noreply@copskc.org");
+        }
+        formData.set("submitted_at", new Date().toISOString());
+        formData.set("assessment_type", "Gambling Disorder (PGSI Extended + DSM-5)");
+        
+        try {
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Submitting Clinical Report...";
+            const response = await fetch(formElement.action, {
+                method: "POST",
+                body: formData,
+                headers: { 'Accept': 'application/json' }
+            });
+            if (response.ok) {
+                showToast("✅ Gambling disorder assessment securely submitted. A COPS KC behavioral specialist will contact you within 48 hours.", false);
+                submitBtn.innerText = "✓ Report Sent ✓";
+                submitBtn.disabled = true;
+                document.querySelectorAll("#gamblingClientForm input[type='text'], #gamblingClientForm input[type='email'], #gamblingClientForm input[type='tel']").forEach(inp => {
+                    if(inp.id !== "gamScoreResultField") inp.disabled = true;
+                });
+                const confirmMsg = document.createElement("p");
+                confirmMsg.className = "text-green-400 text-xs mt-3";
+                confirmMsg.innerText = "✓ Your gambling disorder assessment has been delivered to COPS KC. Recovery support and financial counseling available.";
+                document.querySelector("#infoFormSection .flex-wrap").after(confirmMsg);
+                return true;
+            } else {
+                showToast("Submission error. Please call 816-923-9212 for direct assistance.", true);
+                submitBtn.disabled = false;
+                submitBtn.innerText = "🎲 Send Gambling Assessment to COPS KC";
+                return false;
+            }
+        } catch (err) {
+            console.error(err);
+            showToast("Network error. Contact COPS KC directly.", true);
+            submitBtn.disabled = false;
+            submitBtn.innerText = "🎲 Send Gambling Assessment to COPS KC";
+            return false;
+        }
+    }
+
+    gamForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        if (userScores.some(s => s === null)) {
+            showToast("Please complete all 16 gambling assessment items before submitting.", true);
+            return;
+        }
+        const name = document.getElementById("fullNameGam").value.trim();
+        const phone = document.getElementById("phoneGam").value.trim();
+        const email = document.getElementById("emailGam").value.trim();
+        const city = document.getElementById("cityGam").value.trim();
+        const country = document.getElementById("countryGam").value.trim();
+        if (!name || !phone || !email || !city || !country) {
+            showToast("All fields required: Name, Phone, Email, City, Country.", true);
+            return;
+        }
+        if (!email.includes("@") || phone.length < 6) {
+            showToast("Valid email and phone number required.", true);
+            return;
+        }
+        let summaryField = document.getElementById("gamHiddenSummary");
+        if (summaryField) summaryField.value = `Gambling Disorder Score: ${totalScore} | Severity: ${severityLevel} | Insights: ${behavioralInsights}`;
+        await submitGamblingToFormspree(gamForm);
+    });
+    
+    renderGamblingQuestions();
+</script>
+</body>
+</html>

@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>COPS KC | Nicotine Use Disorder & Tobacco Dependence Assessment (FTND + Clinical Extension)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0E0B16;
+            background-image: radial-gradient(circle at 10% 80%, rgba(249, 115, 22, 0.07) 0%, #0E0B16 95%);
+            color: #EDF2F7;
+        }
+        .question-card {
+            background: rgba(20, 18, 32, 0.85);
+            backdrop-filter: blur(3px);
+            border: 1px solid rgba(249, 115, 22, 0.4);
+            border-radius: 1.25rem;
+            transition: all 0.2s;
+        }
+        .btn-nicotine {
+            background: linear-gradient(95deg, #EA580C, #C2410C);
+            transition: 0.2s;
+        }
+        .btn-nicotine:hover { background: linear-gradient(95deg, #F97316, #EA580C); transform: translateY(-1px); box-shadow: 0 8px 20px rgba(249,115,22,0.35); }
+        .severity-badge { font-family: 'JetBrains Mono', monospace; padding: 0.25rem 1rem; border-radius: 40px; font-weight: 600; }
+        .clinical-badge { background: #2A253A; border-radius: 40px; padding: 0.2rem 0.8rem; font-size: 0.7rem; font-weight: 500; letter-spacing: 0.3px; }
+        input, select { background: #111125; border: 1px solid #3E2A3A; border-radius: 0.75rem; padding: 0.7rem 1rem; color: white; outline: none; transition: 0.2s; }
+        input:focus, select:focus { border-color: #FB923C; ring: 2px solid #F97316; }
+        label { font-size: 0.75rem; font-weight: 500; color: #FDBA74; margin-bottom: 0.25rem; display: block; letter-spacing: 0.3px; }
+        .option-row { background: rgba(48, 40, 58, 0.5); border-radius: 0.75rem; padding: 0.7rem 1rem; cursor: pointer; transition: 0.15s; border: 1px solid transparent; }
+        .option-row.selected { background: #7C2D12; border-color: #F97316; box-shadow: 0 0 0 1px #FB923C; }
+        .option-row:hover { background: #5C3A2A; }
+        .toast-message {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 1000;
+            background: #1E1A2F;
+            border-left: 4px solid #F97316;
+            padding: 12px 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.6);
+            font-size: 0.85rem;
+            font-weight: 500;
+            backdrop-filter: blur(8px);
+        }
+        .toast-success { border-left-color: #F97316; }
+        .toast-error { border-left-color: #EF4444; }
+        .insight-badge { background: #2A2135; border-radius: 20px; padding: 0.3rem 0.8rem; font-size: 0.7rem; font-family: monospace; }
+        hr.divider-glow { border-color: rgba(249, 115, 22, 0.25); }
+    </style>
+</head>
+<body class="py-8 px-4">
+
+<div class="max-w-3xl mx-auto relative z-10">
+    <!-- Header with COPS KC + Nicotine specific -->
+    <div class="mb-8 text-center md:text-left">
+        <div class="flex justify-between items-center flex-wrap gap-3 border-b border-orange-900/50 pb-5 mb-6">
+            <div>
+                <div class="flex items-center gap-2 mb-2 justify-center md:justify-start">
+                    <span class="text-orange-300 text-2xl">🚬</span>
+                    <span class="text-[10px] font-mono tracking-[0.2em] text-slate-400">COPS KC · TOBACCO DEPENDENCY & NICOTINE USE DISORDER</span>
+                </div>
+                <h1 class="text-3xl md:text-4xl font-bold text-white">Nicotine Use Disorder<br><span class="text-transparent bg-clip-text bg-gradient-to-r from-orange-300 to-amber-400">Advanced Clinical Severity & Tobacco Dependence Assessment</span></h1>
+                <p class="text-slate-300 text-sm max-w-xl mt-2">Extended FTND (Fagerström) + DSM-5 oriented assessment covering nicotine tolerance, withdrawal, craving, failed quit attempts, health consequences, and psychosocial impact. Identify your dependence level and receive evidence-based cessation strategies.</p>
+            </div>
+            <div class="bg-black/40 rounded-2xl px-4 py-2 text-center border border-orange-800/50">
+                <div class="text-[10px] font-mono text-orange-300">COPS KC - Cessation Support</div>
+                <div class="text-sm font-bold text-amber-200">📞 816-923-9212 · Nicotine Recovery & Coaching</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Questionnaire container (15 items: smoking frequency, quantity, time to first cigarette, tolerance, withdrawal, craving, failed quit attempts, health impact, etc) -->
+    <div id="nicotineQuizContainer" class="space-y-5 mb-8"></div>
+
+    <!-- Result Section + detailed behavioral insights (hidden until complete) -->
+    <div id="resultSection" class="hidden question-card p-6 mb-8 transition-all"></div>
+
+    <!-- Client information + Formspree for nicotine assessment submission -->
+    <div id="infoFormSection" class="hidden question-card p-6 mb-8 border-t-4 border-orange-500/60">
+        <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">📋 Submit Nicotine Dependence Report</h3>
+        <p class="text-slate-300 text-sm mb-5">Confidential clinical summary. Your name, contact details, and full Nicotine Severity Index will be securely transmitted to COPS KC clinical team via Formspree. We provide faith-based & evidence-based smoking cessation, nicotine replacement therapy guidance, and behavioral counseling.</p>
+        
+        <!-- Active Formspree endpoint for nicotine-specific submissions -->
+        <form id="nicotineClientForm" action="https://formspree.io/f/mgvqegpa" method="POST">
+            <input type="hidden" name="_subject" value="NEW Nicotine Use Disorder Assessment - COPS KC">
+            <input type="hidden" name="_replyto" id="nicotineReplytoHidden" value="">
+            <input type="hidden" name="_ajax" value="true">
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+                <div>
+                    <label>Full Name *</label>
+                    <input type="text" name="Name" required id="fullNameNic" placeholder="e.g., Samuel Carter" class="w-full">
+                </div>
+                <div>
+                    <label>Phone Number *</label>
+                    <input type="tel" name="Phone" required id="phoneNic" placeholder="+1 816-923-9212" class="w-full">
+                </div>
+                <div>
+                    <label>Email Address *</label>
+                    <input type="email" name="Email" required id="emailNic" placeholder="client@example.com" class="w-full">
+                </div>
+                <div>
+                    <label>City *</label>
+                    <input type="text" name="City" required id="cityNic" placeholder="Kansas City" class="w-full">
+                </div>
+                <div class="md:col-span-2">
+                    <label>Country *</label>
+                    <input type="text" name="Country" required id="countryNic" placeholder="United States" class="w-full">
+                </div>
+                <div class="md:col-span-2">
+                    <label>Nicotine Severity Index (Auto-filled - Full clinical summary)</label>
+                    <input type="text" name="Nicotine_Score_Result" id="nicScoreResultField" readonly class="w-full bg-slate-800/60 text-orange-300 font-mono" value="Awaiting completion">
+                </div>
+            </div>
+            <div class="flex flex-wrap gap-4 items-center justify-between">
+                <button type="submit" id="submitNicotineReportBtn" class="btn-nicotine text-white font-bold py-3 px-6 rounded-xl text-sm uppercase tracking-wide disabled:opacity-50 transition-all">🚬 Send Nicotine Assessment to COPS KC</button>
+                <span class="text-[11px] font-mono text-slate-400">🔒 Integrated cessation · NRT & behavioral therapy</span>
+            </div>
+            <p class="text-xs text-slate-500 mt-4">* Submitting indicates you agree to receive guidance from COPS KC regarding nicotine cessation, tobacco harm reduction, and personalized recovery planning.</p>
+        </form>
+    </div>
+
+    <footer class="text-center text-slate-500 text-xs pt-8 border-t border-orange-900/30 mt-6">
+        <p>📞 COPS KC Helpline: <span class="font-mono text-orange-300">816-923-9212</span> | 3800 Agnes Ave Ste.2, Kansas City, MO | Faith-Based & Evidence-Based Recovery</p>
+        <p class="mt-2">© Counselors Obediently Preventing Substance Abuse — Specialized Nicotine Dependence Assessment & Smoking Cessation Programs</p>
+    </footer>
+</div>
+
+<script>
+    // ============================================================
+    // ADVANCED NICOTINE USE DISORDER ASSESSMENT (Extended FTND + DSM-5 criteria)
+    // Domains: Frequency, Quantity, Time to first cigarette (dependency intensity),
+    // Tolerance, Withdrawal, Craving, Failed cessation attempts, Use despite harm,
+    // Social/occupational neglect, Morning use, Health consequences, Psychological impact.
+    // Score range 0-60 (very low to severe). Each item 0-4.
+    // ============================================================
+    const nicotineQuestions = [
+        { text: "How often do you currently use any nicotine product (cigarettes, vaping, nicotine pouches, chewing tobacco, or nicotine replacement beyond prescribed)?", 
+          options: ["Not at all (0)", "1-5 days per month (1)", "1-5 days per week (2)", "Daily, but less than 10 uses/day (3)", "Daily, 10+ uses per day (4)"], values: [0,1,2,3,4] },
+        { text: "On a typical day of use, how much nicotine do you consume? (1 cigarette ~1mg absorbed, 1ml vape 6mg, pouch ~4mg)", 
+          options: ["<2mg (0)", "2-6mg (1)", "7-15mg (2)", "16-30mg (3)", ">30mg (heavy use) (4)"], values: [0,1,2,3,4] },
+        { text: "How soon after waking do you typically use your first nicotine product of the day?", 
+          options: [">60 minutes (0)", "31-60 minutes (1)", "6-30 minutes (2)", "Within 5 minutes (3)", "Immediately after waking / within 1 minute (4)"], values: [0,1,2,3,4] },
+        { text: "Over the past 6 months, have you developed tolerance — needing noticeably more nicotine to achieve the same effect (or diminished effect with same amount)?", 
+          options: ["Never (0)", "Rarely (1)", "Sometimes (2)", "Often (3)", "Almost always / daily (4)"], values: [0,1,2,3,4] },
+        { text: "How often do you experience withdrawal symptoms (irritability, anxiety, difficulty concentrating, restlessness, increased appetite, insomnia, depressed mood) when you go without nicotine?", 
+          options: ["No withdrawal (0)", "Mild / rarely (1)", "Moderate / monthly (2)", "Severe / weekly (3)", "Very severe / daily or intense (4)"], values: [0,1,2,3,4] },
+        { text: "How often do you experience strong cravings, urges, or an intense desire to use nicotine that is difficult to resist?", 
+          options: ["Never (0)", "Less than monthly (1)", "Monthly (2)", "Weekly (3)", "Daily or several times daily (4)"], values: [0,1,2,3,4] },
+        { text: "How many times have you tried to quit or cut down on nicotine use and found yourself unable to maintain abstinence (failed quit attempts)?", 
+          options: ["Never tried (0)", "1 attempt (1)", "2-3 attempts (2)", "4-5 attempts (3)", "More than 5 attempts / chronic relapser (4)"], values: [0,1,2,3,4] },
+        { text: "How often do you use nicotine in restricted places or situations where it's prohibited (workplace, public transit, hospitals, etc.)? (or strong urge leading to use)", 
+          options: ["Never (0)", "Rarely (1)", "Occasionally (2)", "Frequently (3)", "Daily / habitual rule-breaking (4)"], values: [0,1,2,3,4] },
+        { text: "Has nicotine use caused or worsened physical health issues (COPD, chronic cough, shortness of breath, cardiovascular symptoms, gum disease, cancer concerns)?", 
+          options: ["None (0)", "Mild / occasional symptoms (1)", "Moderate / diagnosed condition (2)", "Severe / multiple conditions (3)", "Very severe / life-threatening illness (4)"], values: [0,1,2,3,4] },
+        { text: "How often does nicotine use interfere with your mental health (increased anxiety, stress, irritability when not using, or using to cope with mood)?", 
+          options: ["Never (0)", "Rarely (1)", "Monthly (2)", "Weekly (3)", "Daily / psychological dependence severe (4)"], values: [0,1,2,3,4] },
+        { text: "Do you use nicotine within the first 30 minutes after waking (high dependence marker)?", 
+          options: ["No, after 30+ min (0)", "Sometimes (1)", "Half of the time (2)", "Most mornings (3)", "Every morning without fail (4)"], values: [0,1,2,3,4] },
+        { text: "Have you given up or reduced social, family, or recreational activities because of nicotine use (e.g., avoiding smoke-free places, leaving events to use)?", 
+          options: ["Never (0)", "Once or twice (1)", "Occasionally (2)", "Frequently (3)", "Very often / major lifestyle limitation (4)"], values: [0,1,2,3,4] },
+        { text: "Has a family member, friend, doctor, or counselor expressed concern about your nicotine use or advised you to quit?", 
+          options: ["No (0)", "Yes, but ignored (1)", "Yes, and I tried briefly (2)", "Multiple concerns / relationship strain (3)", "Professional intervention recommended (4)"], values: [0,1,2,3,4] },
+        { text: "How often do you use nicotine despite knowing it worsens a persistent medical or psychological problem (asthma, hypertension, anxiety disorder, peptic ulcer)?", 
+          options: ["Never (0)", "Rarely (1)", "Monthly (2)", "Weekly (3)", "Daily / continuous despite awareness (4)"], values: [0,1,2,3,4] },
+        { text: "How much do you crave nicotine when you are in a situation where you cannot use for an extended period (e.g., flight, meeting, hospital stay)?", 
+          options: ["No craving (0)", "Mild / manageable (1)", "Moderate / uncomfortable (2)", "Severe / preoccupied (3)", "Extreme / panic-like urge (4)"], values: [0,1,2,3,4] }
+    ];
+
+    let userScores = new Array(nicotineQuestions.length).fill(null);
+    let totalScore = 0;
+    let severityLevel = "";
+    let severityDescription = "";
+    let behavioralInsights = "";
+
+    const quizContainer = document.getElementById("nicotineQuizContainer");
+    const resultSection = document.getElementById("resultSection");
+    const infoFormSection = document.getElementById("infoFormSection");
+    const nicScoreField = document.getElementById("nicScoreResultField");
+    const nicForm = document.getElementById("nicotineClientForm");
+    const submitBtn = document.getElementById("submitNicotineReportBtn");
+
+    function showToast(message, isError = false) {
+        const existing = document.querySelector('.toast-message');
+        if(existing) existing.remove();
+        const toastDiv = document.createElement('div');
+        toastDiv.className = `toast-message ${isError ? 'toast-error' : 'toast-success'}`;
+        toastDiv.innerHTML = `<span>${isError ? '⚠️ ' : '✓ '}${message}</span>`;
+        document.body.appendChild(toastDiv);
+        setTimeout(() => toastDiv.remove(), 4800);
+    }
+
+    function renderNicotineQuestions() {
+        quizContainer.innerHTML = "";
+        nicotineQuestions.forEach((q, idx) => {
+            const selectedVal = userScores[idx];
+            const card = document.createElement("div");
+            card.className = "question-card p-5";
+            card.innerHTML = `
+                <div class="flex justify-between items-start mb-3 flex-wrap gap-2">
+                    <h3 class="font-bold text-white text-md">${idx+1}. ${q.text}</h3>
+                    <span class="clinical-badge text-xs text-orange-200">score: ${selectedVal !== null ? selectedVal : "—"}</span>
+                </div>
+                <div class="space-y-2" id="nic-options-${idx}"></div>
+            `;
+            quizContainer.appendChild(card);
+            const optionsDiv = card.querySelector(`#nic-options-${idx}`);
+            q.options.forEach((opt, optIdx) => {
+                const optValue = q.values[optIdx];
+                const optionDiv = document.createElement("div");
+                optionDiv.className = `option-row text-sm text-slate-200 flex justify-between items-center ${selectedVal === optValue ? 'selected' : ''}`;
+                optionDiv.innerHTML = `<span>${opt}</span><span class="text-xs font-mono text-orange-300">${optValue} pts</span>`;
+                optionDiv.addEventListener("click", () => {
+                    userScores[idx] = optValue;
+                    renderNicotineQuestions();
+                    computeTotalAndResult();
+                });
+                optionsDiv.appendChild(optionDiv);
+            });
+        });
+    }
+
+    function generateNicotineBehavioralInsights(score, answersArray) {
+        const ttfIdx = answersArray[2] || 0;      // time to first cig
+        const freqIdx = answersArray[0] || 0;
+        const toleranceIdx = answersArray[3] || 0;
+        const withdrawalIdx = answersArray[4] || 0;
+        const cravingIdx = answersArray[5] || 0;
+        const quitFailIdx = answersArray[6] || 0;
+        const morningIdx = answersArray[10] || 0;
+        const healthIdx = answersArray[8] || 0;
+        let insights = [];
+        if (ttfIdx >= 2) insights.push("⏰ Short time to first nicotine after waking — strong physiological dependence.");
+        if (freqIdx >= 3) insights.push("🔥 Daily heavy use pattern — high nicotine addiction severity.");
+        if (toleranceIdx >= 3) insights.push("📈 Notable tolerance escalation — hallmark of severe substance use disorder.");
+        if (withdrawalIdx >= 3) insights.push("⚠️ Pronounced withdrawal symptoms (irritability, anxiety, insomnia) — physiological addiction.");
+        if (cravingIdx >= 3) insights.push("🧠 Frequent intense cravings — drives compulsive use and relapse risk.");
+        if (quitFailIdx >= 3) insights.push("🔄 Multiple failed quit attempts — consider medication-assisted treatment (NRT, bupropion, varenicline).");
+        if (morningIdx >= 3) insights.push("🌅 Immediate morning use — severe dependence requiring structured intervention.");
+        if (healthIdx >= 3) insights.push("🫁 Significant health consequences (respiratory/cardiovascular) — urgent cessation recommended.");
+        if (answersArray[11] >= 3) insights.push("🚶 Social/occupational sacrifice due to nicotine — functional impairment present.");
+        if (answersArray[14] >= 3) insights.push("😰 Extreme situational craving — behavioral strategies & contingency planning needed.");
+        if (insights.length === 0) insights.push("🌱 Low or moderate risk. Maintain awareness of potential for escalation; consider motivational enhancement for complete cessation.");
+        return insights.join(" · ");
+    }
+
+    function computeTotalAndResult() {
+        const allAnswered = userScores.every(s => s !== null);
+        if (!allAnswered) {
+            resultSection.classList.add("hidden");
+            infoFormSection.classList.add("hidden");
+            return;
+        }
+        totalScore = userScores.reduce((a,b) => a + b, 0);
+        const maxPossible = nicotineQuestions.length * 4;
+        
+        // Clinical severity thresholds based on extended FTND and DSM-5 levels
+        if (totalScore <= 10) {
+            severityLevel = "Minimal / Low Nicotine Dependence";
+            severityDescription = "Occasional or light use with low dependency. Minimal withdrawal or cravings. Preventive education and motivation to stay tobacco-free recommended. COPS KC offers wellness coaching to prevent progression.";
+        } else if (totalScore <= 22) {
+            severityLevel = "Mild Nicotine Use Disorder";
+            severityDescription = "Moderate daily use, emerging withdrawal symptoms, and some failed quit attempts. At risk for chronic health effects. Behavioral counseling and nicotine replacement therapy (NRT) can significantly improve cessation outcomes.";
+        } else if (totalScore <= 36) {
+            severityLevel = "Moderate Nicotine Use Disorder";
+            severityDescription = "Clear physiological dependence, strong cravings, withdrawal discomfort, and repeated unsuccessful quit attempts. Significant health risks. Structured cessation plan (medication + counseling + support groups) strongly advised. Contact COPS KC for tobacco treatment program.";
+        } else {
+            severityLevel = "Severe Nicotine Use Disorder / Heavy Dependence";
+            severityDescription = "Very high daily consumption, immediate morning use, severe withdrawal, chronic health deterioration, and major functional impairment. Meets DSM-5 severe criteria. Intensive outpatient support, FDA-approved pharmacotherapy, and relapse prevention essential. Call 816-923-9212 for immediate clinical coordination.";
+        }
+        
+        behavioralInsights = generateNicotineBehavioralInsights(totalScore, userScores);
+        
+        resultSection.classList.remove("hidden");
+        let severityColorClass = totalScore <= 10 ? "text-emerald-300 bg-emerald-950/30 border-emerald-500/40" :
+                                   (totalScore <= 22 ? "text-yellow-300 bg-yellow-950/30 border-yellow-500/40" :
+                                   (totalScore <= 36 ? "text-orange-300 bg-orange-950/30 border-orange-500/40" : "text-rose-300 bg-rose-950/30 border-rose-500/40"));
+        
+        resultSection.innerHTML = `
+            <div class="flex flex-col gap-4">
+                <div class="flex justify-between items-center flex-wrap gap-2">
+                    <h2 class="text-2xl font-bold text-white">Nicotine Severity Index: <span class="text-orange-300">${totalScore}</span> / ${maxPossible}</h2>
+                    <span class="severity-badge ${severityColorClass} border">${severityLevel}</span>
+                </div>
+                <div class="bg-black/30 p-4 rounded-xl">
+                    <p class="text-slate-200 leading-relaxed">${severityDescription}</p>
+                    <div class="mt-4 bg-amber-950/30 p-3 rounded-lg border-l-4 border-orange-400">
+                        <p class="text-xs font-mono uppercase tracking-wide text-orange-300 mb-1">🧠 NICOTINE DEPENDENCE INSIGHTS</p>
+                        <p class="text-sm text-slate-200">${behavioralInsights}</p>
+                    </div>
+                    <div class="mt-4 flex flex-wrap gap-2 text-[11px] font-mono">
+                        <span class="insight-badge">🚬 0-10: Minimal risk</span>
+                        <span class="insight-badge">⚠️ 11-22: Mild CUD</span>
+                        <span class="insight-badge">🔶 23-36: Moderate dependence</span>
+                        <span class="insight-badge">🔴 37-60: Severe dependence</span>
+                    </div>
+                </div>
+                <div class="border-t border-orange-800/40 pt-3 mt-2 text-sm text-amber-200 flex flex-wrap justify-between items-center">
+                    <span>✝️ Faith-based & evidence-based cessation · NRT, counseling & recovery support</span>
+                    <a href="tel:+18169239212" class="underline text-orange-300 text-xs">Call COPS KC: 816-923-9212</a>
+                </div>
+            </div>
+        `;
+        
+        infoFormSection.classList.remove("hidden");
+        if (nicScoreField) {
+            nicScoreField.value = `Nicotine Index: ${totalScore} (${severityLevel}) | Pattern: ${behavioralInsights.substring(0, 100)}`;
+        }
+        
+        let hiddenSummary = document.getElementById("nicHiddenSummary");
+        if (!hiddenSummary) {
+            hiddenSummary = document.createElement("input");
+            hiddenSummary.type = "hidden";
+            hiddenSummary.name = "nicotine_clinical_summary";
+            hiddenSummary.id = "nicHiddenSummary";
+            nicForm.appendChild(hiddenSummary);
+        }
+        hiddenSummary.value = `Nicotine Dependence Score: ${totalScore} | Severity: ${severityLevel} | Clinical Profile: ${behavioralInsights}`;
+        
+        let hiddenDesc = document.getElementById("nicSeverityDesc");
+        if (!hiddenDesc) {
+            hiddenDesc = document.createElement("input");
+            hiddenDesc.type = "hidden";
+            hiddenDesc.name = "severity_description_nicotine";
+            hiddenDesc.id = "nicSeverityDesc";
+            nicForm.appendChild(hiddenDesc);
+        }
+        hiddenDesc.value = severityDescription;
+    }
+
+    async function submitNicotineToFormspree(formElement) {
+        const formData = new FormData(formElement);
+        const emailValue = document.getElementById("emailNic").value.trim();
+        if (emailValue) {
+            formData.set("_replyto", emailValue);
+            document.getElementById("nicotineReplytoHidden").value = emailValue;
+        } else {
+            formData.set("_replyto", "noreply@copskc.org");
+        }
+        formData.set("submitted_at", new Date().toISOString());
+        formData.set("assessment_type", "Nicotine Use Disorder (Extended FTND + DSM-5)");
+        
+        try {
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Submitting Clinical Report...";
+            const response = await fetch(formElement.action, {
+                method: "POST",
+                body: formData,
+                headers: { 'Accept': 'application/json' }
+            });
+            if (response.ok) {
+                showToast("✅ Nicotine dependence assessment securely submitted. A COPS KC cessation specialist will contact you with personalized support.", false);
+                submitBtn.innerText = "✓ Report Sent ✓";
+                submitBtn.disabled = true;
+                document.querySelectorAll("#nicotineClientForm input[type='text'], #nicotineClientForm input[type='email'], #nicotineClientForm input[type='tel']").forEach(inp => {
+                    if(inp.id !== "nicScoreResultField") inp.disabled = true;
+                });
+                const confirmMsg = document.createElement("p");
+                confirmMsg.className = "text-green-400 text-xs mt-3";
+                confirmMsg.innerText = "✓ Your nicotine use disorder assessment has been delivered to COPS KC. Expect a response within 48 hours.";
+                document.querySelector("#infoFormSection .flex-wrap").after(confirmMsg);
+                return true;
+            } else {
+                showToast("Submission error. Please call 816-923-9212 for direct assistance.", true);
+                submitBtn.disabled = false;
+                submitBtn.innerText = "🚬 Send Nicotine Assessment to COPS KC";
+                return false;
+            }
+        } catch (err) {
+            console.error(err);
+            showToast("Network error. Contact COPS KC directly.", true);
+            submitBtn.disabled = false;
+            submitBtn.innerText = "🚬 Send Nicotine Assessment to COPS KC";
+            return false;
+        }
+    }
+
+    nicForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        if (userScores.some(s => s === null)) {
+            showToast("Please complete all 15 nicotine assessment items before submitting.", true);
+            return;
+        }
+        const name = document.getElementById("fullNameNic").value.trim();
+        const phone = document.getElementById("phoneNic").value.trim();
+        const email = document.getElementById("emailNic").value.trim();
+        const city = document.getElementById("cityNic").value.trim();
+        const country = document.getElementById("countryNic").value.trim();
+        if (!name || !phone || !email || !city || !country) {
+            showToast("All fields required: Name, Phone, Email, City, Country.", true);
+            return;
+        }
+        if (!email.includes("@") || phone.length < 6) {
+            showToast("Valid email and phone number required.", true);
+            return;
+        }
+        let summaryField = document.getElementById("nicHiddenSummary");
+        if (summaryField) summaryField.value = `Nicotine Dependence Score: ${totalScore} | Severity: ${severityLevel} | Insights: ${behavioralInsights}`;
+        await submitNicotineToFormspree(nicForm);
+    });
+    
+    renderNicotineQuestions();
+</script>
+</body>
+</html>

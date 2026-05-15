@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>COPS KC | Codeine Use Disorder & Opioid Dependence Assessment (Clinical Protocol)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0B0E1A;
+            background-image: radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.07) 0%, #0B0E1A 95%);
+            color: #EFF6FF;
+        }
+        .question-card {
+            background: rgba(18, 24, 38, 0.85);
+            backdrop-filter: blur(3px);
+            border: 1px solid rgba(59, 130, 246, 0.4);
+            border-radius: 1.25rem;
+            transition: all 0.2s;
+        }
+        .btn-codeine {
+            background: linear-gradient(95deg, #2563EB, #1D4ED8);
+            transition: 0.2s;
+        }
+        .btn-codeine:hover { background: linear-gradient(95deg, #3B82F6, #2563EB); transform: translateY(-1px); box-shadow: 0 8px 20px rgba(37,99,235,0.35); }
+        .severity-badge { font-family: 'JetBrains Mono', monospace; padding: 0.25rem 1rem; border-radius: 40px; font-weight: 600; }
+        .clinical-badge { background: #1E293B; border-radius: 40px; padding: 0.2rem 0.8rem; font-size: 0.7rem; font-weight: 500; letter-spacing: 0.3px; }
+        input, select { background: #0F172A; border: 1px solid #334155; border-radius: 0.75rem; padding: 0.7rem 1rem; color: white; outline: none; transition: 0.2s; }
+        input:focus, select:focus { border-color: #60A5FA; ring: 2px solid #3B82F6; }
+        label { font-size: 0.75rem; font-weight: 500; color: #93C5FD; margin-bottom: 0.25rem; display: block; letter-spacing: 0.3px; }
+        .option-row { background: rgba(30, 41, 59, 0.5); border-radius: 0.75rem; padding: 0.7rem 1rem; cursor: pointer; transition: 0.15s; border: 1px solid transparent; }
+        .option-row.selected { background: #1E3A8A; border-color: #3B82F6; box-shadow: 0 0 0 1px #60A5FA; }
+        .option-row:hover { background: #2D3A5E; }
+        .toast-message {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 1000;
+            background: #1A1F2E;
+            border-left: 4px solid #3B82F6;
+            padding: 12px 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.6);
+            font-size: 0.85rem;
+            font-weight: 500;
+            backdrop-filter: blur(8px);
+        }
+        .toast-success { border-left-color: #3B82F6; }
+        .toast-error { border-left-color: #EF4444; }
+        .insight-badge { background: #1E293B; border-radius: 20px; padding: 0.3rem 0.8rem; font-size: 0.7rem; font-family: monospace; }
+        hr.divider-glow { border-color: rgba(59, 130, 246, 0.25); }
+    </style>
+</head>
+<body class="py-8 px-4">
+
+<div class="max-w-3xl mx-auto relative z-10">
+    <!-- Header with COPS KC + Codeine specific -->
+    <div class="mb-8 text-center md:text-left">
+        <div class="flex justify-between items-center flex-wrap gap-3 border-b border-blue-900/50 pb-5 mb-6">
+            <div>
+                <div class="flex items-center gap-2 mb-2 justify-center md:justify-start">
+                    <span class="text-blue-300 text-2xl"></span>
+                    <span class="text-[10px] font-mono tracking-[0.2em] text-slate-400">COPS KC · OPIOID USE DISORDER & CODEINE DEPENDENCE ANALYSIS</span>
+                </div>
+                <h1 class="text-3xl md:text-4xl font-bold text-white">Codeine Use Disorder<br><span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-indigo-400">Advanced Opioid Severity & Dependence Assessment</span></h1>
+                <p class="text-slate-300 text-sm max-w-xl mt-2">Extended codeine-specific assessment (opioid CUDIT-R + DSM-5 criteria) covering prescription misuse, "lean"/soda mixtures, tolerance, withdrawal, craving, doctor shopping, and life consequences. Identify severity and receive immediate clinical guidance for opioid recovery.</p>
+            </div>
+            <div class="bg-black/40 rounded-2xl px-4 py-2 text-center border border-blue-800/50">
+                <div class="text-[10px] font-mono text-blue-300">COPS KC - Opioid Recovery</div>
+                <div class="text-sm font-bold text-amber-200">📞 816-923-9212 · MAT & Crisis Support</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Questionnaire container (15 items: frequency, quantity, tolerance, withdrawal, craving, doctor shopping, social/occupational collapse, etc) -->
+    <div id="codeineQuizContainer" class="space-y-5 mb-8"></div>
+
+    <!-- Result Section + detailed behavioral insights (hidden until complete) -->
+    <div id="resultSection" class="hidden question-card p-6 mb-8 transition-all"></div>
+
+    <!-- Client information + Formspree for codeine assessment submission -->
+    <div id="infoFormSection" class="hidden question-card p-6 mb-8 border-t-4 border-blue-500/60">
+        <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">📋 Submit Codeine Dependence Assessment Report</h3>
+        <p class="text-slate-300 text-sm mb-5">Strictly confidential clinical summary. Your name, contact details, and full Codeine Severity Index will be securely transmitted to COPS KC clinical team via Formspree. We provide faith-based & evidence-based opioid recovery, medication-assisted treatment (MAT) referrals, and intensive outpatient programming.</p>
+        
+        <!-- Active Formspree endpoint for codeine-specific submissions -->
+        <form id="codeineClientForm" action="https://formspree.io/f/mgvqegpa" method="POST">
+            <input type="hidden" name="_subject" value="NEW Codeine Use Disorder Assessment - COPS KC">
+            <input type="hidden" name="_replyto" id="codeineReplytoHidden" value="">
+            <input type="hidden" name="_ajax" value="true">
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+                <div>
+                    <label>Full Name *</label>
+                    <input type="text" name="Name" required id="fullNameCod" placeholder="e.g., Jessica Ray" class="w-full">
+                </div>
+                <div>
+                    <label>Phone Number *</label>
+                    <input type="tel" name="Phone" required id="phoneCod" placeholder="+1 816-923-9212" class="w-full">
+                </div>
+                <div>
+                    <label>Email Address *</label>
+                    <input type="email" name="Email" required id="emailCod" placeholder="client@example.com" class="w-full">
+                </div>
+                <div>
+                    <label>City *</label>
+                    <input type="text" name="City" required id="cityCod" placeholder="Kansas City" class="w-full">
+                </div>
+                <div class="md:col-span-2">
+                    <label>Country *</label>
+                    <input type="text" name="Country" required id="countryCod" placeholder="United States" class="w-full">
+                </div>
+                <div class="md:col-span-2">
+                    <label>Codeine Severity Index (Auto-filled - Full clinical summary)</label>
+                    <input type="text" name="Codeine_Score_Result" id="codScoreResultField" readonly class="w-full bg-slate-800/60 text-blue-300 font-mono" value="Awaiting completion">
+                </div>
+            </div>
+            <div class="flex flex-wrap gap-4 items-center justify-between">
+                <button type="submit" id="submitCodeineReportBtn" class="btn-codeine text-white font-bold py-3 px-6 rounded-xl text-sm uppercase tracking-wide disabled:opacity-50 transition-all">💊 Send Codeine Assessment to COPS KC</button>
+                <span class="text-[11px] font-mono text-slate-400">🔒 24/7 Opioid crisis line · MAT & counseling</span>
+            </div>
+            <p class="text-xs text-slate-500 mt-4">* By submitting, you agree to receive guidance from COPS KC regarding codeine cessation, withdrawal management, and personalized treatment. All information is HIPAA-compliant & confidential.</p>
+        </form>
+    </div>
+
+    <footer class="text-center text-slate-500 text-xs pt-8 border-t border-blue-900/30 mt-6">
+        <p>📞 COPS KC Helpline: <span class="font-mono text-blue-300">816-923-9212</span> | 3800 Agnes Ave Ste.2, Kansas City, MO | Faith-Based & Evidence-Based Recovery</p>
+        <p class="mt-2">© Counselors Obediently Preventing Substance Abuse — Specialized Codeine Use Disorder Assessment & Opioid IOP Programs</p>
+    </footer>
+</div>
+
+<script>
+    // ============================================================
+    // ADVANCED CODEINE USE DISORDER ASSESSMENT (Opioid-specific CUDIT-R + DSM-5)
+    // Domains: Frequency, Quantity, Tolerance, Withdrawal, Craving, Doctor shopping,
+    // Failed control, Time spent, Neglect of roles, Physical health (constipation, respiratory),
+    // Psychological impact, Risky use (driving, mixing), Morning use, Social/legal consequences.
+    // Score range 0-60 (high severity mapping). Each item 0-4.
+    // ============================================================
+    const codeineQuestions = [
+        { text: "How often do you use codeine (prescription tablets, syrup/lean, cough syrup with codeine) without a prescription or in higher doses than prescribed?", 
+          options: ["Never or less than monthly (0)", "1-3 days per month (1)", "1-3 days per week (2)", "4-6 days per week (3)", "Daily or almost daily (4)"], values: [0,1,2,3,4] },
+        { text: "On a typical day of use, what is your approximate codeine dosage in milligrams (mg)?", 
+          options: ["<60mg (0)", "60-120mg (1)", "121-200mg (2)", "201-300mg (3)", ">300mg or heavy lean consumption (4)"], values: [0,1,2,3,4] },
+        { text: "Over the past 6 months, have you developed tolerance — needing significantly more codeine to achieve the same analgesic/euphoric effect (or diminished effect with same amount)?", 
+          options: ["Never (0)", "Rarely (1)", "Sometimes (2)", "Often (3)", "Almost always / daily (4)"], values: [0,1,2,3,4] },
+        { text: "How often do you experience opioid withdrawal symptoms when you stop or cut down codeine (muscle aches, diarrhea, nausea, anxiety, insomnia, runny nose, yawning, dilated pupils)?", 
+          options: ["No withdrawal (0)", "Mild / rarely (1)", "Moderate / monthly (2)", "Severe / weekly (3)", "Very severe / daily dependence (4)"], values: [0,1,2,3,4] },
+        { text: "How intense are your cravings or urges to use codeine when you are not under the influence?", 
+          options: ["No cravings (0)", "Mild / easily ignored (1)", "Moderate / distracting (2)", "Severe / hard to resist (3)", "Extreme / compulsive urge (4)"], values: [0,1,2,3,4] },
+        { text: "Have you engaged in 'doctor shopping' (visiting multiple prescribers or pharmacies) or obtained codeine illegally (street, online) to maintain supply?", 
+          options: ["Never (0)", "Rarely (1-2 times) (1)", "Occasionally (2)", "Frequently (3)", "Regular practice / primary source (4)"], values: [0,1,2,3,4] },
+        { text: "How often have you tried to cut down or control your codeine use and found you were unable to do so?", 
+          options: ["Never tried or always succeeded (0)", "Tried but failed occasionally (1)", "Failed multiple times (2)", "Often unable to cut down (3)", "Consistently unable to control (4)"], values: [0,1,2,3,4] },
+        { text: "How much time do you spend obtaining, using, or recovering from codeine (including seeking prescriptions, waiting, mixing syrup, crash days)?", 
+          options: ["<1 hour/day (0)", "1-2 hours/day (1)", "2-4 hours/day (2)", "4-8 hours/day (3)", ">8 hours / entire day consumed (4)"], values: [0,1,2,3,4] },
+        { text: "Has codeine use caused you to neglect work, school, family, or social responsibilities (e.g., missing work, failing classes, relationship breakdown)?", 
+          options: ["Never (0)", "Once or twice (1)", "Occasionally (2)", "Frequently (3)", "Very often / total collapse (4)"], values: [0,1,2,3,4] },
+        { text: "Have you experienced significant physical health consequences due to codeine (severe constipation, respiratory depression, hormonal dysfunction, liver/kidney issues from acetaminophen combination)?", 
+          options: ["None (0)", "Minor symptoms (1)", "Moderate / medical visit (2)", "Severe / hospitalization (3)", "Life-threatening event / organ damage (4)"], values: [0,1,2,3,4] },
+        { text: "How often does codeine use affect your mental health (apathy, depression, anxiety, sedation, cognitive fog)?", 
+          options: ["Never (0)", "Rarely (1)", "Monthly (2)", "Weekly (3)", "Daily / debilitating (4)"], values: [0,1,2,3,4] },
+        { text: "How often do you use codeine in risky situations (while driving, operating machinery, or mixing with alcohol/benzodiazepines/other CNS depressants)?", 
+          options: ["Never (0)", "Rarely (1)", "Monthly (2)", "Weekly (3)", "Daily / high-risk poly-use (4)"], values: [0,1,2,3,4] },
+        { text: "Do you use codeine first thing in the morning or within the first hour after waking to stop withdrawal or cravings?", 
+          options: ["Never (0)", "Less than weekly (1)", "1-3 times/week (2)", "4-6 times/week (3)", "Every morning (4)"], values: [0,1,2,3,4] },
+        { text: "Have you experienced legal, financial, or housing problems because of codeine (arrests for possession, debt, job loss, eviction)?", 
+          options: ["No (0)", "Minor financial (1)", "Moderate / legal issues (2)", "Severe / criminal charges (3)", "Major life consequences / incarceration (4)"], values: [0,1,2,3,4] },
+        { text: "How often do you continue using codeine despite knowing it worsens a persistent medical or psychological problem (chronic constipation, respiratory illness, depression, bipolar)?", 
+          options: ["Never (0)", "Rarely (1)", "Monthly (2)", "Weekly (3)", "Daily / compulsive despite awareness (4)"], values: [0,1,2,3,4] }
+    ];
+
+    let userScores = new Array(codeineQuestions.length).fill(null);
+    let totalScore = 0;
+    let severityLevel = "";
+    let severityDescription = "";
+    let behavioralInsights = "";
+
+    const quizContainer = document.getElementById("codeineQuizContainer");
+    const resultSection = document.getElementById("resultSection");
+    const infoFormSection = document.getElementById("infoFormSection");
+    const codScoreField = document.getElementById("codScoreResultField");
+    const codForm = document.getElementById("codeineClientForm");
+    const submitBtn = document.getElementById("submitCodeineReportBtn");
+
+    function showToast(message, isError = false) {
+        const existing = document.querySelector('.toast-message');
+        if(existing) existing.remove();
+        const toastDiv = document.createElement('div');
+        toastDiv.className = `toast-message ${isError ? 'toast-error' : 'toast-success'}`;
+        toastDiv.innerHTML = `<span>${isError ? '⚠️ ' : '✓ '}${message}</span>`;
+        document.body.appendChild(toastDiv);
+        setTimeout(() => toastDiv.remove(), 4800);
+    }
+
+    function renderCodeineQuestions() {
+        quizContainer.innerHTML = "";
+        codeineQuestions.forEach((q, idx) => {
+            const selectedVal = userScores[idx];
+            const card = document.createElement("div");
+            card.className = "question-card p-5";
+            card.innerHTML = `
+                <div class="flex justify-between items-start mb-3 flex-wrap gap-2">
+                    <h3 class="font-bold text-white text-md">${idx+1}. ${q.text}</h3>
+                    <span class="clinical-badge text-xs text-blue-200">score: ${selectedVal !== null ? selectedVal : "—"}</span>
+                </div>
+                <div class="space-y-2" id="cod-options-${idx}"></div>
+            `;
+            quizContainer.appendChild(card);
+            const optionsDiv = card.querySelector(`#cod-options-${idx}`);
+            q.options.forEach((opt, optIdx) => {
+                const optValue = q.values[optIdx];
+                const optionDiv = document.createElement("div");
+                optionDiv.className = `option-row text-sm text-slate-200 flex justify-between items-center ${selectedVal === optValue ? 'selected' : ''}`;
+                optionDiv.innerHTML = `<span>${opt}</span><span class="text-xs font-mono text-blue-300">${optValue} pts</span>`;
+                optionDiv.addEventListener("click", () => {
+                    userScores[idx] = optValue;
+                    renderCodeineQuestions();
+                    computeTotalAndResult();
+                });
+                optionsDiv.appendChild(optionDiv);
+            });
+        });
+    }
+
+    function generateCodeineBehavioralInsights(score, answersArray) {
+        const freq = answersArray[0] || 0;
+        const tolerance = answersArray[2] || 0;
+        const withdrawal = answersArray[3] || 0;
+        const craving = answersArray[4] || 0;
+        const docShop = answersArray[5] || 0;
+        const controlFail = answersArray[6] || 0;
+        const morningUse = answersArray[12] || 0;
+        const healthPhys = answersArray[9] || 0;
+        const risky = answersArray[11] || 0;
+        let insights = [];
+        if (freq >= 3) insights.push("💊 Frequent (near-daily) codeine use — high opioid dependence risk.");
+        if (tolerance >= 3) insights.push("📈 Significant tolerance escalation — hallmark of opioid use disorder.");
+        if (withdrawal >= 3) insights.push("⚠️ Pronounced opioid withdrawal (flu-like, GI distress) — physiological dependence requires medical management.");
+        if (craving >= 3) insights.push("🧠 Severe cravings — drives compulsive use and relapse risk.");
+        if (docShop >= 2) insights.push("🏥 Doctor shopping or illicit sourcing — hallmark of severe opioid use disorder.");
+        if (controlFail >= 3) insights.push("🔄 Repeated failed control attempts — inability to stop despite consequences.");
+        if (morningUse >= 3) insights.push("🌅 Morning use to relieve withdrawal — severe dependence intensity.");
+        if (healthPhys >= 3) insights.push("⚠️ Opioid-induced constipation, respiratory depression, or organ damage — urgent medical evaluation needed.");
+        if (risky >= 3) insights.push("🚗 High-risk use (driving, poly-substance) — increased overdose risk.");
+        if (answersArray[8] >= 3) insights.push("📉 Complete neglect of roles — functional collapse requiring intensive intervention.");
+        if (insights.length === 0) insights.push("⚠️ Low-frequency pattern but opioids carry high addiction potential. Preventive education recommended.");
+        return insights.join(" · ");
+    }
+
+    function computeTotalAndResult() {
+        const allAnswered = userScores.every(s => s !== null);
+        if (!allAnswered) {
+            resultSection.classList.add("hidden");
+            infoFormSection.classList.add("hidden");
+            return;
+        }
+        totalScore = userScores.reduce((a,b) => a + b, 0);
+        const maxPossible = codeineQuestions.length * 4;
+        
+        // Clinical severity thresholds for codeine/opioid use disorder
+        if (totalScore <= 12) {
+            severityLevel = "Low Risk / Occasional or Prescribed Use";
+            severityDescription = "Infrequent use without significant dependence features. However, opioids (including codeine) carry high addiction potential. Early intervention and prescription monitoring essential. COPS KC offers preventive counseling.";
+        } else if (totalScore <= 26) {
+            severityLevel = "Mild Opioid Use Disorder (Codeine-specific)";
+            severityDescription = "Emerging tolerance, mild withdrawal, or craving. Some interference with daily life. Opioid-specific CBT and medication-assisted treatment consultation recommended to prevent progression.";
+        } else if (totalScore <= 40) {
+            severityLevel = "Moderate Opioid Use Disorder";
+            severityDescription = "Clear physiological dependence, withdrawal syndrome, failed quit attempts, and notable psychosocial/health consequences. Medication-assisted treatment (MAT with buprenorphine/methadone), intensive outpatient program, and relapse prevention essential. Contact COPS KC immediately.";
+        } else {
+            severityLevel = "Severe Opioid Use Disorder / High-Dependence";
+            severityDescription = "Daily compulsive use, severe withdrawal, doctor shopping, significant medical (constipation, respiratory risk) and legal consequences. Overdose risk elevated. Requires medical stabilization, MAT induction, intensive IOP or residential treatment. Call 816-923-9212 for crisis intervention and immediate placement.";
+        }
+        
+        behavioralInsights = generateCodeineBehavioralInsights(totalScore, userScores);
+        
+        resultSection.classList.remove("hidden");
+        let severityColorClass = totalScore <= 12 ? "text-emerald-300 bg-emerald-950/30 border-emerald-500/40" :
+                                   (totalScore <= 26 ? "text-yellow-300 bg-yellow-950/30 border-yellow-500/40" :
+                                   (totalScore <= 40 ? "text-orange-300 bg-orange-950/30 border-orange-500/40" : "text-rose-300 bg-rose-950/30 border-rose-500/40"));
+        
+        resultSection.innerHTML = `
+            <div class="flex flex-col gap-4">
+                <div class="flex justify-between items-center flex-wrap gap-2">
+                    <h2 class="text-2xl font-bold text-white">Codeine Severity Index: <span class="text-blue-300">${totalScore}</span> / ${maxPossible}</h2>
+                    <span class="severity-badge ${severityColorClass} border">${severityLevel}</span>
+                </div>
+                <div class="bg-black/30 p-4 rounded-xl">
+                    <p class="text-slate-200 leading-relaxed">${severityDescription}</p>
+                    <div class="mt-4 bg-indigo-950/30 p-3 rounded-lg border-l-4 border-blue-400">
+                        <p class="text-xs font-mono uppercase tracking-wide text-blue-300 mb-1">🧠 OPIOID DEPENDENCE INSIGHTS (CODEINE)</p>
+                        <p class="text-sm text-slate-200">${behavioralInsights}</p>
+                    </div>
+                    <div class="mt-4 flex flex-wrap gap-2 text-[11px] font-mono">
+                        <span class="insight-badge">💊 0-12: Low risk</span>
+                        <span class="insight-badge">⚠️ 13-26: Mild OUD</span>
+                        <span class="insight-badge">🔶 27-40: Moderate OUD</span>
+                        <span class="insight-badge">🔴 41-60: Severe OUD</span>
+                    </div>
+                </div>
+                <div class="border-t border-blue-800/40 pt-3 mt-2 text-sm text-amber-200 flex flex-wrap justify-between items-center">
+                    <span>✝️ Faith-based & clinical opioid recovery · MAT referrals & IOP</span>
+                    <a href="tel:+18169239212" class="underline text-blue-300 text-xs">Call COPS KC: 816-923-9212</a>
+                </div>
+            </div>
+        `;
+        
+        infoFormSection.classList.remove("hidden");
+        if (codScoreField) {
+            codScoreField.value = `Codeine Index: ${totalScore} (${severityLevel}) | Pattern: ${behavioralInsights.substring(0, 100)}`;
+        }
+        
+        let hiddenSummary = document.getElementById("codHiddenSummary");
+        if (!hiddenSummary) {
+            hiddenSummary = document.createElement("input");
+            hiddenSummary.type = "hidden";
+            hiddenSummary.name = "codeine_clinical_summary";
+            hiddenSummary.id = "codHiddenSummary";
+            codForm.appendChild(hiddenSummary);
+        }
+        hiddenSummary.value = `Codeine Use Disorder Score: ${totalScore} | Severity: ${severityLevel} | Opioid Profile: ${behavioralInsights}`;
+        
+        let hiddenDesc = document.getElementById("codSeverityDesc");
+        if (!hiddenDesc) {
+            hiddenDesc = document.createElement("input");
+            hiddenDesc.type = "hidden";
+            hiddenDesc.name = "severity_description_codeine";
+            hiddenDesc.id = "codSeverityDesc";
+            codForm.appendChild(hiddenDesc);
+        }
+        hiddenDesc.value = severityDescription;
+    }
+
+    async function submitCodeineToFormspree(formElement) {
+        const formData = new FormData(formElement);
+        const emailValue = document.getElementById("emailCod").value.trim();
+        if (emailValue) {
+            formData.set("_replyto", emailValue);
+            document.getElementById("codeineReplytoHidden").value = emailValue;
+        } else {
+            formData.set("_replyto", "noreply@copskc.org");
+        }
+        formData.set("submitted_at", new Date().toISOString());
+        formData.set("assessment_type", "Codeine Use Disorder (Opioid CUDIT-R + DSM-5)");
+        
+        try {
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Submitting Clinical Report...";
+            const response = await fetch(formElement.action, {
+                method: "POST",
+                body: formData,
+                headers: { 'Accept': 'application/json' }
+            });
+            if (response.ok) {
+                showToast("✅ Codeine dependence assessment securely submitted. A COPS KC opioid specialist will contact you within hours.", false);
+                submitBtn.innerText = "✓ Report Sent ✓";
+                submitBtn.disabled = true;
+                document.querySelectorAll("#codeineClientForm input[type='text'], #codeineClientForm input[type='email'], #codeineClientForm input[type='tel']").forEach(inp => {
+                    if(inp.id !== "codScoreResultField") inp.disabled = true;
+                });
+                const confirmMsg = document.createElement("p");
+                confirmMsg.className = "text-green-400 text-xs mt-3";
+                confirmMsg.innerText = "✓ Your codeine use disorder assessment has been delivered to COPS KC. Immediate MAT and recovery support available.";
+                document.querySelector("#infoFormSection .flex-wrap").after(confirmMsg);
+                return true;
+            } else {
+                showToast("Submission error. Please call 816-923-9212 for direct assistance.", true);
+                submitBtn.disabled = false;
+                submitBtn.innerText = "💊 Send Codeine Assessment to COPS KC";
+                return false;
+            }
+        } catch (err) {
+            console.error(err);
+            showToast("Network error. Contact COPS KC directly.", true);
+            submitBtn.disabled = false;
+            submitBtn.innerText = "💊 Send Codeine Assessment to COPS KC";
+            return false;
+        }
+    }
+
+    codForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        if (userScores.some(s => s === null)) {
+            showToast("Please complete all 15 codeine assessment items before submitting.", true);
+            return;
+        }
+        const name = document.getElementById("fullNameCod").value.trim();
+        const phone = document.getElementById("phoneCod").value.trim();
+        const email = document.getElementById("emailCod").value.trim();
+        const city = document.getElementById("cityCod").value.trim();
+        const country = document.getElementById("countryCod").value.trim();
+        if (!name || !phone || !email || !city || !country) {
+            showToast("All fields required: Name, Phone, Email, City, Country.", true);
+            return;
+        }
+        if (!email.includes("@") || phone.length < 6) {
+            showToast("Valid email and phone number required.", true);
+            return;
+        }
+        let summaryField = document.getElementById("codHiddenSummary");
+        if (summaryField) summaryField.value = `Codeine Dependence Score: ${totalScore} | Severity: ${severityLevel} | Insights: ${behavioralInsights}`;
+        await submitCodeineToFormspree(codForm);
+    });
+    
+    renderCodeineQuestions();
+</script>
+</body>
+</html>
