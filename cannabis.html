@@ -50,14 +50,34 @@
         }
         .toast-success { border-left-color: #4ADE80; }
         .toast-error { border-left-color: #F87171; }
+        .toast-info { border-left-color: #60A5FA; }
         .insight-badge { background: #1F2D29; border-radius: 20px; padding: 0.3rem 0.8rem; font-size: 0.7rem; font-family: monospace; }
         hr.divider-glow { border-color: rgba(74, 222, 128, 0.2); }
+        .download-card {
+            background: linear-gradient(135deg, #0E1A18 0%, #0B111F 100%);
+            border: 1px solid rgba(74, 222, 128, 0.4);
+            box-shadow: 0 8px 20px -8px rgba(0,0,0,0.6);
+        }
+        .btn-outline-emerald {
+            border: 1px solid #4ADE80;
+            transition: 0.2s;
+        }
+        .btn-outline-emerald:hover {
+            background: rgba(74, 222, 128, 0.15);
+            transform: translateY(-1px);
+        }
+        .critical-alert {
+            background: rgba(220, 38, 38, 0.2);
+            border-left: 4px solid #EF4444;
+            backdrop-filter: blur(4px);
+        }
+        button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
     </style>
 </head>
 <body class="py-8 px-4">
 
 <div class="max-w-3xl mx-auto relative z-10">
-    <!-- Header with COPS KC + Cannabis specific -->
+    <!-- Header with COPS KC + Cannabis specific (no form) -->
     <div class="mb-8 text-center md:text-left">
         <div class="flex justify-between items-center flex-wrap gap-3 border-b border-emerald-900/50 pb-5 mb-6">
             <div>
@@ -66,7 +86,7 @@
                     <span class="text-[10px] font-mono tracking-[0.2em] text-slate-400">COPS KC · SUBSTANCE USE DISORDER & BEHAVIORAL HEALTH</span>
                 </div>
                 <h1 class="text-3xl md:text-4xl font-bold text-white">Cannabis Use Disorder<br><span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 to-teal-400">Advanced Clinical Severity & Dependency Assessment</span></h1>
-                <p class="text-slate-300 text-sm max-w-xl mt-2">Extended CUDIT-R based assessment + cannabis-specific patterns (tolerance, withdrawal, craving, psychosocial impairment, cannabis hyperemesis risk). Identify DSM-5 oriented severity and receive evidence-based interventions.</p>
+                <p class="text-slate-300 text-sm max-w-xl mt-2">Extended CUDIT-R based assessment + cannabis-specific patterns (tolerance, withdrawal, craving, psychosocial impairment, cannabis hyperemesis risk). Identify DSM-5 oriented severity — after completion, download your confidential report. If results indicate critical need, email us to begin recovery.</p>
             </div>
             <div class="bg-black/40 rounded-2xl px-4 py-2 text-center border border-emerald-800/50">
                 <div class="text-[10px] font-mono text-emerald-300">COPS KC - Integrated Recovery</div>
@@ -75,55 +95,42 @@
         </div>
     </div>
 
-    <!-- Questionnaire container (15 items: frequency, quantity, tolerance, withdrawal, craving, neglect of roles, failed control, time spent, health problems, risky use, psychological issues, morning use, etc) -->
+    <!-- Questionnaire container (15 items) -->
     <div id="cannabisQuizContainer" class="space-y-5 mb-8"></div>
 
-    <!-- Result Section + detailed behavioral insights (hidden until complete) -->
+    <!-- Result Section + download + email guidance (initially hidden) -->
     <div id="resultSection" class="hidden question-card p-6 mb-8 transition-all"></div>
-
-    <!-- Client information + Formspree for cannabis assessment submission -->
-    <div id="infoFormSection" class="hidden question-card p-6 mb-8 border-t-4 border-emerald-500/60">
-        <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">📋 Submit Cannabis Assessment Report</h3>
-        <p class="text-slate-300 text-sm mb-5">Confidential clinical summary. Your name, contact details, and full Cannabis Use Disorder Severity Index will be securely transmitted to COPS KC clinical team via Formspree. We provide faith-based & evidence-based recovery for cannabis dependency and co-occurring conditions.</p>
+    
+    <!-- Action Panel: Download Report & Critical Email Guidance (appears after result) -->
+    <div id="actionPanel" class="hidden download-card rounded-2xl p-6 mb-8 border border-emerald-500/30">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-5">
+            <div>
+                <h3 class="text-xl font-bold text-white flex items-center gap-2">📄 Your Cannabis Clinical Report</h3>
+                <p class="text-slate-300 text-sm mt-1">Download full assessment summary with severity score, behavioral insights, and personalized recommendations.</p>
+            </div>
+            <button id="downloadReportBtn" class="btn-cannabis text-white font-semibold py-3 px-6 rounded-xl text-sm uppercase tracking-wide flex items-center gap-2 shadow-lg">⬇️ Download Report (PDF)</button>
+        </div>
         
-        <!-- Active Formspree endpoint ready for cannabis-specific submissions -->
-        <form id="cannabisClientForm" action="https://formspree.io/f/mgvqegpa" method="POST">
-            <input type="hidden" name="_subject" value="NEW Cannabis Use Disorder Assessment - COPS KC">
-            <input type="hidden" name="_replyto" id="cannabisReplytoHidden" value="">
-            <input type="hidden" name="_ajax" value="true">
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+        <!-- Dynamic critical alert: only appears if severe or moderate-high score -->
+        <div id="criticalEmailAlert" class="mt-6 hidden critical-alert rounded-xl p-4 border border-red-500/40">
+            <div class="flex gap-3 items-start">
+                <span class="text-2xl">⚠️</span>
                 <div>
-                    <label>Full Name *</label>
-                    <input type="text" name="Name" required id="fullNameCann" placeholder="e.g., Jordan Williams" class="w-full">
-                </div>
-                <div>
-                    <label>Phone Number *</label>
-                    <input type="tel" name="Phone" required id="phoneCann" placeholder="+1 816-923-9212" class="w-full">
-                </div>
-                <div>
-                    <label>Email Address *</label>
-                    <input type="email" name="Email" required id="emailCann" placeholder="client@example.com" class="w-full">
-                </div>
-                <div>
-                    <label>City *</label>
-                    <input type="text" name="City" required id="cityCann" placeholder="Kansas City" class="w-full">
-                </div>
-                <div class="md:col-span-2">
-                    <label>Country *</label>
-                    <input type="text" name="Country" required id="countryCann" placeholder="United States" class="w-full">
-                </div>
-                <div class="md:col-span-2">
-                    <label>Cannabis Severity Index (Auto-filled - Full clinical summary)</label>
-                    <input type="text" name="Cannabis_Score_Result" id="cannScoreResultField" readonly class="w-full bg-slate-800/60 text-emerald-300 font-mono" value="Awaiting completion">
+                    <p class="font-bold text-red-200">Clinical Attention Recommended — Your Severity Suggests Need for Support</p>
+                    <p class="text-sm text-slate-200 mt-1">Based on your score, professional guidance is strongly advised. Please email your downloaded report to <span class="font-mono bg-black/30 px-2 py-0.5 rounded text-emerald-300">care@copskc.org</span> or call <span class="font-bold text-white">816-923-9212</span>. Our team will review and reach out with recovery options, withdrawal management, and spiritual support.</p>
+                    <div class="flex gap-3 mt-3 flex-wrap">
+                        <a href="mailto:care@copskc.org?subject=Cannabis%20Assessment%20-%20Urgent%20Follow-up%20Requested&body=I%20completed%20the%20COPS%20KC%20Cannabis%20Use%20Disorder%20assessment%20and%20my%20report%20indicates%20significant%20severity.%20Please%20contact%20me%20regarding%20treatment%20options.%20My%20report%20is%20attached." class="bg-red-800/60 hover:bg-red-700/70 text-white px-4 py-2 rounded-lg text-sm font-medium transition">📧 Email care@copskc.org</a>
+                        <a href="tel:+18169239212" class="bg-emerald-800/60 hover:bg-emerald-700/70 text-white px-4 py-2 rounded-lg text-sm font-medium transition">📞 Call 816-923-9212 Now</a>
+                    </div>
                 </div>
             </div>
-            <div class="flex flex-wrap gap-4 items-center justify-between">
-                <button type="submit" id="submitCannabisReportBtn" class="btn-cannabis text-white font-bold py-3 px-6 rounded-xl text-sm uppercase tracking-wide disabled:opacity-50 transition-all">🌿 Send Cannabis Assessment to COPS KC</button>
-                <span class="text-[11px] font-mono text-slate-400">🔒 Integrated care · Recovery coaching & spiritual support</span>
-            </div>
-            <p class="text-xs text-slate-500 mt-4">* Submitting indicates you agree to receive guidance from COPS KC regarding cannabis use disorder, withdrawal management, and holistic treatment options.</p>
-        </form>
+        </div>
+        
+        <!-- General email guidance (always visible) -->
+        <div class="mt-5 pt-4 border-t border-emerald-800/30 flex flex-wrap justify-between items-center gap-3 text-xs text-slate-400">
+            <div class="flex gap-2 items-center"><span class="text-emerald-400">✉️</span> Prefer to share results? Email downloaded report to <span class="font-mono text-emerald-300 bg-black/30 px-2 py-0.5 rounded">care@copskc.org</span> — a clinician will respond within 24h.</div>
+            <div><span class="font-mono">🔒 Confidential · Faith-Based & Evidence-Based Care</span></div>
+        </div>
     </div>
 
     <footer class="text-center text-slate-500 text-xs pt-8 border-t border-emerald-900/30 mt-6">
@@ -133,12 +140,7 @@
 </div>
 
 <script>
-    // ============================================================
-    // ADVANCED CANNABIS USE DISORDER ASSESSMENT (CUDIT-R + clinical extension + DSM-5 oriented)
-    // Domains: Frequency, Quantity, Tolerance, Withdrawal, Craving, Time spent, Neglect of roles,
-    // Failed control, Hazardous use (driving etc), Psychological/Physical issues, Morning use, Interpersonal consequences.
-    // Score range 0-60 (moderate to severe mapping). Each item 0-4.
-    // ============================================================
+    // 15 clinical cannabis questions (CUDIT-R extended + DSM-5 oriented)
     const cannabisQuestions = [
         { text: "How often do you use cannabis (any form: flower, edibles, concentrates, vape)?", 
           options: ["Never or less than monthly (0)", "1-3 days per month (1)", "1-3 days per week (2)", "4-6 days per week (3)", "Daily or almost daily (4)"], values: [0,1,2,3,4] },
@@ -177,20 +179,21 @@
     let severityLevel = "";
     let severityDescription = "";
     let behavioralInsights = "";
+    let detailedAnswersForReport = [];
 
     const quizContainer = document.getElementById("cannabisQuizContainer");
     const resultSection = document.getElementById("resultSection");
-    const infoFormSection = document.getElementById("infoFormSection");
-    const cannScoreField = document.getElementById("cannScoreResultField");
-    const cannForm = document.getElementById("cannabisClientForm");
-    const submitBtn = document.getElementById("submitCannabisReportBtn");
+    const actionPanel = document.getElementById("actionPanel");
+    const criticalAlertDiv = document.getElementById("criticalEmailAlert");
 
-    function showToast(message, isError = false) {
+    function showToast(message, isError = false, isInfo = false) {
         const existing = document.querySelector('.toast-message');
         if(existing) existing.remove();
         const toastDiv = document.createElement('div');
-        toastDiv.className = `toast-message ${isError ? 'toast-error' : 'toast-success'}`;
-        toastDiv.innerHTML = `<span>${isError ? '⚠️ ' : '✓ '}${message}</span>`;
+        if(isError) toastDiv.className = `toast-message toast-error`;
+        else if(isInfo) toastDiv.className = `toast-message toast-info`;
+        else toastDiv.className = `toast-message toast-success`;
+        toastDiv.innerHTML = `<span>${isError ? '⚠️ ' : (isInfo ? 'ℹ️ ' : '✓ ')}${message}</span>`;
         document.body.appendChild(toastDiv);
         setTimeout(() => toastDiv.remove(), 4800);
     }
@@ -254,13 +257,13 @@
         const allAnswered = userScores.every(s => s !== null);
         if (!allAnswered) {
             resultSection.classList.add("hidden");
-            infoFormSection.classList.add("hidden");
+            actionPanel.classList.add("hidden");
             return;
         }
         totalScore = userScores.reduce((a,b) => a + b, 0);
         const maxPossible = cannabisQuestions.length * 4;
+        detailedAnswersForReport = [...userScores];
         
-        // Clinical severity thresholds based on extended CUDIT-R and DSM-5 level
         if (totalScore <= 10) {
             severityLevel = "Low Risk / Occasional Use";
             severityDescription = "Minimal impact from cannabis. No signs of dependence or significant impairment. Abstinence not required but monitor for escalation, especially if you have mental health vulnerabilities. COPS KC offers preventive psychoeducation.";
@@ -308,101 +311,82 @@
             </div>
         `;
         
-        infoFormSection.classList.remove("hidden");
-        if (cannScoreField) {
-            cannScoreField.value = `Cannabis Index: ${totalScore} (${severityLevel}) | Pattern: ${behavioralInsights.substring(0, 100)}`;
-        }
+        actionPanel.classList.remove("hidden");
         
-        let hiddenSummary = document.getElementById("cannHiddenSummary");
-        if (!hiddenSummary) {
-            hiddenSummary = document.createElement("input");
-            hiddenSummary.type = "hidden";
-            hiddenSummary.name = "cannabis_clinical_summary";
-            hiddenSummary.id = "cannHiddenSummary";
-            cannForm.appendChild(hiddenSummary);
-        }
-        hiddenSummary.value = `CUDIT-R Cannabis Score: ${totalScore} | Severity: ${severityLevel} | Clinical Profile: ${behavioralInsights}`;
-        
-        let hiddenDesc = document.getElementById("cannSeverityDesc");
-        if (!hiddenDesc) {
-            hiddenDesc = document.createElement("input");
-            hiddenDesc.type = "hidden";
-            hiddenDesc.name = "severity_description_cannabis";
-            hiddenDesc.id = "cannSeverityDesc";
-            cannForm.appendChild(hiddenDesc);
-        }
-        hiddenDesc.value = severityDescription;
-    }
-
-    async function submitCannabisToFormspree(formElement) {
-        const formData = new FormData(formElement);
-        const emailValue = document.getElementById("emailCann").value.trim();
-        if (emailValue) {
-            formData.set("_replyto", emailValue);
-            document.getElementById("cannabisReplytoHidden").value = emailValue;
+        // Critical logic: if moderate (score >=23) or severe (>=37) we show critical email alert + recommendation
+        if (totalScore >= 23) {
+            criticalAlertDiv.classList.remove("hidden");
         } else {
-            formData.set("_replyto", "noreply@copskc.org");
-        }
-        formData.set("submitted_at", new Date().toISOString());
-        formData.set("assessment_type", "Cannabis Use Disorder (Extended CUDIT-R + DSM-5)");
-        
-        try {
-            submitBtn.disabled = true;
-            submitBtn.innerText = "Submitting Clinical Report...";
-            const response = await fetch(formElement.action, {
-                method: "POST",
-                body: formData,
-                headers: { 'Accept': 'application/json' }
-            });
-            if (response.ok) {
-                showToast("✅ Cannabis assessment securely submitted. A COPS KC specialist will contact you with personalized recovery options.", false);
-                submitBtn.innerText = "✓ Report Sent ✓";
-                submitBtn.disabled = true;
-                document.querySelectorAll("#cannabisClientForm input[type='text'], #cannabisClientForm input[type='email'], #cannabisClientForm input[type='tel']").forEach(inp => {
-                    if(inp.id !== "cannScoreResultField") inp.disabled = true;
-                });
-                const confirmMsg = document.createElement("p");
-                confirmMsg.className = "text-green-400 text-xs mt-3";
-                confirmMsg.innerText = "✓ Your cannabis use disorder assessment has been delivered to COPS KC. Expect a response within 48 hours.";
-                document.querySelector("#infoFormSection .flex-wrap").after(confirmMsg);
-                return true;
-            } else {
-                showToast("Submission error. Please call 816-923-9212 for direct assistance.", true);
-                submitBtn.disabled = false;
-                submitBtn.innerText = "🌿 Send Cannabis Assessment to COPS KC";
-                return false;
-            }
-        } catch (err) {
-            console.error(err);
-            showToast("Network error. Contact COPS KC directly.", true);
-            submitBtn.disabled = false;
-            submitBtn.innerText = "🌿 Send Cannabis Assessment to COPS KC";
-            return false;
+            criticalAlertDiv.classList.add("hidden");
         }
     }
-
-    cannForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        if (userScores.some(s => s === null)) {
-            showToast("Please complete all 15 cannabis assessment questions before submitting.", true);
-            return;
+    
+    // Build downloadable HTML report (styled nicely)
+    function buildReportHTML() {
+        const now = new Date();
+        const formattedDate = now.toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
+        const maxPossible = cannabisQuestions.length * 4;
+        // construct answers table summary
+        let answersTableRows = "";
+        cannabisQuestions.forEach((q, i) => {
+            const answerScore = userScores[i] !== null ? userScores[i] : 0;
+            const selectedText = q.options.find((_, idx) => q.values[idx] === answerScore) || "Not answered";
+            answersTableRows += `<tr style="border-bottom:1px solid #2d4a3a;">
+                <td style="padding:8px 6px; font-size:13px;">${i+1}. ${q.text}</td>
+                <td style="padding:8px 6px; font-size:13px;">${selectedText}</td>
+                <td style="padding:8px 6px; text-align:center; font-weight:bold;">${answerScore}</td>
+            </tr>`;
+        });
+        
+        const isCritical = totalScore >= 23;
+        const criticalNote = isCritical ? `<div style="background:#330f0f; border-left: 6px solid #ef4444; padding: 12px; margin-top: 16px; border-radius: 12px;"><strong style="color:#fca5a5;">⚠️ CLINICAL RECOMMENDATION:</strong> Your severity score indicates moderate-to-severe cannabis use disorder. Please contact COPS KC immediately at 816-923-9212 or email care@copskc.org with this report attached. Evidence-based treatment & withdrawal support available.</div>` : `<div style="background:#0c2e1f; border-left: 6px solid #4ade80; padding: 10px; margin-top:12px; border-radius:12px;"><strong>✅ Low to mild range:</strong> Continue monitoring; preventive resources available at COPS KC.</div>`;
+        
+        return `<!DOCTYPE html>
+        <html>
+        <head><meta charset="UTF-8"><title>COPSKC_Cannabis_Assessment_${totalScore}_${formattedDate.replace(/,/g, '')}</title>
+        <style>body { font-family: 'Inter', 'Segoe UI', sans-serif; background: #0A0B14; color: #e2e8f0; padding: 2rem; line-height:1.5; } 
+        .container { max-width: 900px; margin:0 auto; background: #111827; border-radius: 1.5rem; padding: 2rem; border:1px solid #2dd4bf33; }
+        h1 { color:#4ade80; font-size: 1.8rem; } .score-badge { background:#065f46; display:inline-block; padding:0.2rem 1rem; border-radius:40px; }
+        table { width:100%; border-collapse: collapse; margin:1rem 0; } th { text-align:left; background:#1e293b; padding:8px; }
+        .footer { margin-top: 2rem; font-size:12px; text-align:center; color:#6c8b7a; } hr { border-color:#2e7d64; }
+        </style></head>
+        <body><div class="container">
+        <h1>🌿 COPS KC Cannabis Use Disorder Clinical Report</h1>
+        <p><strong>Date:</strong> ${formattedDate} | <strong>Assessment Tool:</strong> Extended CUDIT-R + DSM-5 Severity Index</p>
+        <div style="background:#064e3b; border-radius:16px; padding: 12px 20px; margin:20px 0;">
+            <span class="score-badge">Total Score: ${totalScore} / ${maxPossible}</span>
+            <span style="margin-left:12px; font-weight:bold;">Severity: ${severityLevel}</span>
+        </div>
+        <p><strong>Clinical Summary:</strong> ${severityDescription}</p>
+        <div style="background:#1f2937; border-radius:14px; padding:14px; margin: 16px 0;">
+            <strong>🧠 Behavioral Patterns:</strong><br>${behavioralInsights}
+        </div>
+        <h3>📋 Detailed Responses (15 domains)</h3>
+        <table><thead><tr><th>Question</th><th>Selected Option</th><th>Score</th></tr></thead><tbody>${answersTableRows}</tbody></table>
+        ${criticalNote}
+        <hr>
+        <div class="footer"><p>COPS KC | 3800 Agnes Ave Ste.2, Kansas City, MO | 816-923-9212 | care@copskc.org</p><p>Faith-Based & Evidence-Based Recovery — Confidential clinical report. Please share with your provider if needed.</p></div>
+        </div></body></html>`;
+    }
+    
+    // download handler
+    document.addEventListener("click", async (e) => {
+        if (e.target.id === "downloadReportBtn") {
+            if (userScores.some(s => s === null)) {
+                showToast("Please complete all 15 questions before downloading report.", true);
+                return;
+            }
+            const htmlContent = buildReportHTML();
+            const blob = new Blob([htmlContent], { type: "text/html" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            const timestamp = new Date().toISOString().slice(0,19).replace(/:/g, '-');
+            a.download = `COPSKC_Cannabis_Report_${totalScore}_${timestamp}.html`;
+            a.href = url;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast("Report downloaded! If your score indicates need, please email it to care@copskc.org for clinical follow-up.", false);
         }
-        const name = document.getElementById("fullNameCann").value.trim();
-        const phone = document.getElementById("phoneCann").value.trim();
-        const email = document.getElementById("emailCann").value.trim();
-        const city = document.getElementById("cityCann").value.trim();
-        const country = document.getElementById("countryCann").value.trim();
-        if (!name || !phone || !email || !city || !country) {
-            showToast("All fields required: Name, Phone, Email, City, Country.", true);
-            return;
-        }
-        if (!email.includes("@") || phone.length < 6) {
-            showToast("Valid email and phone number required.", true);
-            return;
-        }
-        let summaryField = document.getElementById("cannHiddenSummary");
-        if (summaryField) summaryField.value = `CUDIT-R Cannabis Score: ${totalScore} | Severity: ${severityLevel} | Insights: ${behavioralInsights}`;
-        await submitCannabisToFormspree(cannForm);
     });
     
     renderCannabisQuestions();
